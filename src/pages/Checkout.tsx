@@ -2,18 +2,39 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { ChevronLeft, MapPin, Truck, ShieldCheck, CheckCircle2 } from 'lucide-react';
 import { useState } from 'react';
 import { useAppContext } from '../context/AppContext';
+import { useAuth } from '../context/AuthContext';
+import { supabase } from '../lib/supabase';
 
 export default function Checkout() {
   const { id } = useParams();
   const navigate = useNavigate();
-  const { state, dispatch } = useAppContext();
+  const { state } = useAppContext();
+  const { user } = useAuth();
   
   const toy = state.toys.find(t => t.id === id) || state.toys[0];
   const [isSuccess, setIsSuccess] = useState(false);
+  const [loading, setLoading] = useState(false);
 
-  const handlePay = () => {
-    dispatch({ type: 'RENT_TOY', payload: toy });
-    setIsSuccess(true);
+  const handlePay = async () => {
+    if (!user) return;
+    setLoading(true);
+    
+    const { error } = await supabase.from('rentals').insert([
+      {
+        toy_id: toy.id,
+        renter_id: user.id,
+        status: 'active'
+      }
+    ]);
+
+    setLoading(false);
+    if (!error) {
+      setIsSuccess(true);
+      // Wait a moment before fetching updated context if needed
+    } else {
+      console.error(error);
+      alert('Checkout failed!');
+    }
   };
 
   if (isSuccess) {
@@ -120,9 +141,10 @@ export default function Checkout() {
 
         <button 
           onClick={handlePay}
-          className="w-full bg-gray-900 text-white font-bold py-4 rounded-xl shadow-lg mt-4 flex justify-center items-center gap-2 hover:bg-gray-800 transition-colors"
+          disabled={loading}
+          className="w-full bg-gray-900 text-white font-bold py-4 rounded-xl shadow-lg mt-4 flex justify-center items-center gap-2 hover:bg-gray-800 transition-colors disabled:opacity-70"
         >
-          Pay ₹{total} Securely
+          {loading ? 'Processing...' : `Pay ₹${total} Securely`}
         </button>
 
       </div>

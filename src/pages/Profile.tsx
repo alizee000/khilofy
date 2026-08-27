@@ -1,29 +1,41 @@
-import { Settings, Shield, Award, Share2, Gift } from 'lucide-react';
+import { Settings, Shield, Award, Share2, Gift, LogOut } from 'lucide-react';
 import { useAppContext } from '../context/AppContext';
+import { useAuth } from '../context/AuthContext';
+import { supabase } from '../lib/supabase';
 import ToyCard from '../components/ToyCard';
 
 export default function Profile() {
   const { state } = useAppContext();
-  const { user, activeRentals, toys } = state;
+  const { user, profile } = useAuth();
+  const { activeRentals, toys } = state;
   
+  if (!user || !profile) return null;
+
   // Calculate dynamic stats
   const totalRented = 12 + activeRentals.length; // Baseline 12 + newly rented
   const myListings = toys.filter(t => t.ownerId === user.id);
+
+  const handleSignOut = () => {
+    supabase.auth.signOut();
+  };
 
   return (
     <div className="w-full bg-gray-50 min-h-screen pb-6">
       {/* Header Profile Section */}
       <div className="bg-white px-4 pt-10 pb-6 rounded-b-[30px] shadow-sm relative">
-        <div className="absolute top-6 right-4">
-          <Settings size={24} className="text-gray-400" />
+        <div className="absolute top-6 right-4 flex gap-4">
+          <button onClick={handleSignOut} className="text-gray-400 hover:text-red-500 transition-colors">
+            <LogOut size={20} />
+          </button>
+          <Settings size={22} className="text-gray-400" />
         </div>
         
         <div className="flex items-center gap-4 mb-6">
-          <img src={user.avatarUrl} alt={user.name} className="w-20 h-20 rounded-full border-4 border-brand-50 shadow-sm" />
+          <img src={profile.avatar_url || `https://api.dicebear.com/7.x/notionists/svg?seed=${user.email}`} alt={profile.name} className="w-20 h-20 rounded-full border-4 border-brand-50 shadow-sm bg-gray-100" />
           <div>
-            <h1 className="text-2xl font-bold text-gray-900">{user.name}</h1>
+            <h1 className="text-2xl font-bold text-gray-900">{profile.name || user.email?.split('@')[0]}</h1>
             <div className="flex items-center gap-1 text-sm font-medium text-brand-600 bg-brand-50 px-2 py-0.5 rounded-full mt-1 w-fit">
-              <Award size={14} /> Score: {user.toyLoopScore}
+              <Award size={14} /> Score: {profile.toy_loop_score || 0}
             </div>
           </div>
         </div>
@@ -66,36 +78,13 @@ export default function Profile() {
           </div>
           <h2 className="text-sm font-semibold uppercase tracking-wide text-trust-100 mb-1">Owner Dashboard</h2>
           <div className="flex items-end gap-2 mb-4">
-            <span className="text-3xl font-bold">₹{user.earnings.toLocaleString('en-IN')}</span>
+            <span className="text-3xl font-bold">₹{(profile.earnings || 0).toLocaleString('en-IN')}</span>
             <span className="text-trust-100 text-sm font-medium pb-1">earned this month</span>
           </div>
           <p className="text-sm text-trust-50 mb-4 max-w-[80%]">Your toys earned money while you were doing nothing.</p>
           <button className="bg-white text-trust-700 font-bold px-4 py-2 rounded-xl text-sm w-full shadow-sm">
             Manage Listings ({myListings.length} Active)
           </button>
-        </div>
-
-        {/* Badges */}
-        <div>
-          <h3 className="text-lg font-bold text-gray-900 mb-3">Your Badges</h3>
-          <div className="flex gap-3 overflow-x-auto no-scrollbar pb-2">
-            {user.badges.map(badge => (
-              <div key={badge} className="bg-white border border-gray-200 rounded-2xl p-4 min-w-[120px] flex flex-col items-center justify-center text-center shadow-sm">
-                <span className="text-3xl mb-2">{badge.split(' ')[0]}</span>
-                <span className="text-xs font-semibold text-gray-700">{badge.split(' ').slice(1).join(' ')}</span>
-              </div>
-            ))}
-            {activeRentals.length > 0 && (
-              <div className="bg-brand-50 border border-brand-200 rounded-2xl p-4 min-w-[120px] flex flex-col items-center justify-center text-center shadow-sm">
-                <span className="text-3xl mb-2">🌟</span>
-                <span className="text-xs font-semibold text-brand-700">Active Renter</span>
-              </div>
-            )}
-            <div className="bg-gray-50 border border-dashed border-gray-300 rounded-2xl p-4 min-w-[120px] flex flex-col items-center justify-center text-center text-gray-400">
-              <span className="text-2xl mb-2">🔒</span>
-              <span className="text-[10px] font-semibold uppercase">Unlock Next</span>
-            </div>
-          </div>
         </div>
 
         {/* Share & Referral */}

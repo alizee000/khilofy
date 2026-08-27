@@ -1,5 +1,6 @@
-import { BrowserRouter, Routes, Route } from 'react-router-dom';
+import { BrowserRouter, Routes, Route, Navigate, useLocation } from 'react-router-dom';
 import { AppProvider } from './context/AppContext';
+import { AuthProvider, useAuth } from './context/AuthContext';
 import BottomNav from './components/BottomNav';
 import Home from './pages/Home';
 import Discover from './pages/Discover';
@@ -8,6 +9,17 @@ import ListToy from './pages/ListToy';
 import Profile from './pages/Profile';
 import ToyDetail from './pages/ToyDetail';
 import Checkout from './pages/Checkout';
+import Auth from './pages/Auth';
+
+function ProtectedRoute({ children }: { children: React.ReactNode }) {
+  const { user, isLoading } = useAuth();
+  const location = useLocation();
+  
+  if (isLoading) return <div className="min-h-screen flex items-center justify-center">Loading...</div>;
+  if (!user) return <Navigate to="/auth" state={{ from: location }} replace />;
+  
+  return <>{children}</>;
+}
 
 function AppLayout({ children }: { children: React.ReactNode }) {
   return (
@@ -26,21 +38,24 @@ function AppLayout({ children }: { children: React.ReactNode }) {
 
 function App() {
   return (
-    <AppProvider>
-      <BrowserRouter>
-        <Routes>
-        <Route path="/" element={<AppLayout><Home /></AppLayout>} />
-        <Route path="/discover" element={<AppLayout><Discover /></AppLayout>} />
-        <Route path="/birthday" element={<AppLayout><Birthday /></AppLayout>} />
-        <Route path="/list" element={<AppLayout><ListToy /></AppLayout>} />
-        <Route path="/profile" element={<AppLayout><Profile /></AppLayout>} />
-        
-        {/* Detail and Checkout routes might hide bottom nav in a real app, but we keep layout simple for MVP */}
-        <Route path="/toy/:id" element={<div className="max-w-md mx-auto bg-white min-h-screen"><ToyDetail /></div>} />
-        <Route path="/checkout/:id" element={<div className="max-w-md mx-auto bg-white min-h-screen"><Checkout /></div>} />
-      </Routes>
-      </BrowserRouter>
-    </AppProvider>
+    <AuthProvider>
+      <AppProvider>
+        <BrowserRouter>
+          <Routes>
+            <Route path="/auth" element={<div className="max-w-md mx-auto bg-white min-h-screen shadow-xl"><Auth /></div>} />
+            {/* All Routes Protected (Login Required for everything) */}
+            <Route path="/" element={<ProtectedRoute><AppLayout><Home /></AppLayout></ProtectedRoute>} />
+            <Route path="/discover" element={<ProtectedRoute><AppLayout><Discover /></AppLayout></ProtectedRoute>} />
+            <Route path="/birthday" element={<ProtectedRoute><AppLayout><Birthday /></AppLayout></ProtectedRoute>} />
+            <Route path="/toy/:id" element={<ProtectedRoute><div className="max-w-md mx-auto bg-white min-h-screen shadow-xl"><ToyDetail /></div></ProtectedRoute>} />
+            
+            <Route path="/list" element={<ProtectedRoute><AppLayout><ListToy /></AppLayout></ProtectedRoute>} />
+            <Route path="/profile" element={<ProtectedRoute><AppLayout><Profile /></AppLayout></ProtectedRoute>} />
+            <Route path="/checkout/:id" element={<ProtectedRoute><div className="max-w-md mx-auto bg-white min-h-screen shadow-xl"><Checkout /></div></ProtectedRoute>} />
+          </Routes>
+        </BrowserRouter>
+      </AppProvider>
+    </AuthProvider>
   );
 }
 
