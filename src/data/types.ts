@@ -43,6 +43,7 @@ export interface Toy {
   recentRentalsCount: number; // for trending score
   targetGender?: 'Boy' | 'Girl' | 'Unisex';
   createdAt: string;
+  selectedDuration?: 1 | 3 | 7 | 30; // attached when adding to cart
 }
 
 export interface User {

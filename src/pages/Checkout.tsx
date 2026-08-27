@@ -1,4 +1,4 @@
-import { useParams, useNavigate } from 'react-router-dom';
+import { useParams, useNavigate, useLocation } from 'react-router-dom';
 import { ChevronLeft, MapPin, Truck, ShieldCheck, CheckCircle2 } from 'lucide-react';
 import { useState } from 'react';
 import { useAppContext } from '../context/AppContext';
@@ -8,18 +8,28 @@ import { supabase } from '../lib/supabase';
 export default function Checkout() {
   const { id } = useParams();
   const navigate = useNavigate();
+  const location = useLocation();
   const { state } = useAppContext();
   const { user } = useAuth();
   
+  const searchParams = new URLSearchParams(location.search);
+  const urlDuration = parseInt(searchParams.get('duration') || '1');
+
   const isCartCheckout = id === 'cart';
-  const checkoutToys = isCartCheckout ? state.cart : (state.toys.find(t => t.id === id) ? [state.toys.find(t => t.id === id)!] : [state.toys[0]]);
+  const checkoutToys = isCartCheckout ? state.cart : (state.toys.find(t => t.id === id) ? [{ ...state.toys.find(t => t.id === id)!, selectedDuration: urlDuration as any }] : [state.toys[0]]);
   
   const [isSuccess, setIsSuccess] = useState(false);
   const [loading, setLoading] = useState(false);
-  const [paymentMethod, setPaymentMethod] = useState<'online' | 'cod'>('cod'); // Default to COD
+  const [paymentMethod, setPaymentMethod] = useState<'online' | 'cod'>('cod');
 
-  const duration = 1;
-  const rentalFee = checkoutToys.reduce((sum, t) => sum + t.rentalRates.oneDay, 0);
+  const rentalFee = checkoutToys.reduce((sum, t) => {
+    const dur = t.selectedDuration || 1;
+    if (dur === 30) return sum + t.rentalRates.thirtyDays;
+    if (dur === 7) return sum + t.rentalRates.sevenDays;
+    if (dur === 3) return sum + t.rentalRates.threeDays;
+    return sum + t.rentalRates.oneDay;
+  }, 0);
+  
   const deposit = checkoutToys.reduce((sum, t) => sum + t.deposit, 0);
   const deliveryFee = checkoutToys.length > 0 ? 99 : 0;
   const total = rentalFee + deliveryFee + deposit;
@@ -212,7 +222,7 @@ export default function Checkout() {
           
           <div className="space-y-3 mb-4">
             <div className="flex justify-between items-center text-sm">
-              <span className="text-gray-600">Rental Fee ({duration} Day)</span>
+              <span className="text-gray-600">Rental Fee ({isCartCheckout ? 'Various' : urlDuration + ' Days'})</span>
               <span className="font-semibold text-gray-900">₹{rentalFee}</span>
             </div>
             <div className="flex justify-between items-center text-sm">

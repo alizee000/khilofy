@@ -9,9 +9,11 @@ export default function ToyDetail() {
   const navigate = useNavigate();
   const { state, dispatch } = useAppContext();
   const [added, setAdded] = useState(false);
+  const [selectedDuration, setSelectedDuration] = useState<1 | 3 | 7 | 30>(1);
   
   // Find toy from global live state, fallback to mock if loading
-  const toy = state.toys.find(t => t.id === id) || state.toys[0] || TOYS[0];
+  const baseToy = state.toys.find(t => t.id === id) || state.toys[0] || TOYS[0];
+  const toy = { ...baseToy, selectedDuration };
   const owner = OWNERS[toy.ownerId] || OWNERS['o1'];
 
   return (
@@ -75,22 +77,27 @@ export default function ToyDetail() {
         <div className="bg-gray-50 rounded-2xl p-4 mb-6 border border-gray-100">
           <h3 className="text-sm font-bold text-gray-900 mb-3">Rental Duration</h3>
           <div className="grid grid-cols-4 gap-2 text-center">
-            <div className="bg-white border border-brand-500 rounded-xl py-2 px-1 shadow-sm ring-1 ring-brand-100">
-              <div className="text-[10px] font-semibold text-gray-500 uppercase">1 Day</div>
-              <div className="text-sm font-bold text-brand-600">₹{toy.rentalRates.oneDay}</div>
+            
+            <div onClick={() => setSelectedDuration(1)} className={`cursor-pointer rounded-xl py-2 px-1 transition-all border ${selectedDuration === 1 ? 'bg-white border-brand-500 shadow-sm ring-1 ring-brand-100' : 'bg-white border-gray-200 hover:border-brand-300'}`}>
+              <div className={`text-[10px] font-semibold uppercase ${selectedDuration === 1 ? 'text-gray-500' : 'text-gray-400'}`}>1 Day</div>
+              <div className={`text-sm font-bold ${selectedDuration === 1 ? 'text-brand-600' : 'text-gray-900'}`}>₹{toy.rentalRates.oneDay}</div>
             </div>
-            <div className="bg-white border border-gray-200 rounded-xl py-2 px-1">
-              <div className="text-[10px] font-semibold text-gray-500 uppercase">3 Days</div>
-              <div className="text-sm font-bold text-gray-900">₹{toy.rentalRates.threeDays}</div>
+            
+            <div onClick={() => setSelectedDuration(3)} className={`cursor-pointer rounded-xl py-2 px-1 transition-all border ${selectedDuration === 3 ? 'bg-white border-brand-500 shadow-sm ring-1 ring-brand-100' : 'bg-white border-gray-200 hover:border-brand-300'}`}>
+              <div className={`text-[10px] font-semibold uppercase ${selectedDuration === 3 ? 'text-gray-500' : 'text-gray-400'}`}>3 Days</div>
+              <div className={`text-sm font-bold ${selectedDuration === 3 ? 'text-brand-600' : 'text-gray-900'}`}>₹{toy.rentalRates.threeDays}</div>
             </div>
-            <div className="bg-white border border-gray-200 rounded-xl py-2 px-1">
-              <div className="text-[10px] font-semibold text-gray-500 uppercase">7 Days</div>
-              <div className="text-sm font-bold text-gray-900">₹{toy.rentalRates.sevenDays}</div>
+            
+            <div onClick={() => setSelectedDuration(7)} className={`cursor-pointer rounded-xl py-2 px-1 transition-all border ${selectedDuration === 7 ? 'bg-white border-brand-500 shadow-sm ring-1 ring-brand-100' : 'bg-white border-gray-200 hover:border-brand-300'}`}>
+              <div className={`text-[10px] font-semibold uppercase ${selectedDuration === 7 ? 'text-gray-500' : 'text-gray-400'}`}>7 Days</div>
+              <div className={`text-sm font-bold ${selectedDuration === 7 ? 'text-brand-600' : 'text-gray-900'}`}>₹{toy.rentalRates.sevenDays}</div>
             </div>
-            <div className="bg-white border border-gray-200 rounded-xl py-2 px-1">
-              <div className="text-[10px] font-semibold text-gray-500 uppercase">30 Days</div>
-              <div className="text-sm font-bold text-gray-900">₹{toy.rentalRates.thirtyDays}</div>
+            
+            <div onClick={() => setSelectedDuration(30)} className={`cursor-pointer rounded-xl py-2 px-1 transition-all border ${selectedDuration === 30 ? 'bg-white border-brand-500 shadow-sm ring-1 ring-brand-100' : 'bg-white border-gray-200 hover:border-brand-300'}`}>
+              <div className={`text-[10px] font-semibold uppercase ${selectedDuration === 30 ? 'text-gray-500' : 'text-gray-400'}`}>30 Days</div>
+              <div className={`text-sm font-bold ${selectedDuration === 30 ? 'text-brand-600' : 'text-gray-900'}`}>₹{toy.rentalRates.thirtyDays}</div>
             </div>
+            
           </div>
           <p className="text-xs text-gray-500 text-center mt-3 flex items-center justify-center gap-1">
             <ShieldCheck size={14} className="text-green-500" /> Fully refundable deposit: ₹{toy.deposit}
@@ -165,8 +172,13 @@ export default function ToyDetail() {
           >
             {added ? <><Check size={18} /> Added</> : 'Add to Cart'}
           </button>
-          <Link to={`/checkout/${toy.id}`} className="flex-1 bg-brand-500 text-white font-bold py-3.5 rounded-xl text-center shadow-lg hover:bg-brand-600 transition-colors flex items-center justify-center gap-1">
-            Rent Now <span className="text-xs font-normal">₹{toy.rentalRates.oneDay}</span>
+          <Link to={`/checkout/${toy.id}?duration=${selectedDuration}`} className="flex-1 bg-brand-500 text-white font-bold py-3.5 rounded-xl text-center shadow-lg hover:bg-brand-600 transition-colors flex items-center justify-center gap-1">
+            Rent Now <span className="text-xs font-normal">₹{
+              selectedDuration === 1 ? toy.rentalRates.oneDay :
+              selectedDuration === 3 ? toy.rentalRates.threeDays :
+              selectedDuration === 7 ? toy.rentalRates.sevenDays :
+              toy.rentalRates.thirtyDays
+            }</span>
           </Link>
         </div>
       </div>
