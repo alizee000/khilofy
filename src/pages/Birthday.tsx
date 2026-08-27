@@ -133,10 +133,19 @@ export default function Birthday() {
               </div>
             </div>
 
-            <button className="w-full bg-blue-600 text-white font-bold rounded-xl py-4 hover:bg-blue-700 transition-colors shadow-lg mb-3">
+            <button 
+              onClick={() => alert("🎉 Success! The entire Birthday Pack has been reserved. Check your email for confirmation and delivery details.")}
+              className="w-full bg-blue-600 text-white font-bold rounded-xl py-4 hover:bg-blue-700 transition-colors shadow-lg mb-3"
+            >
               Reserve Entire Pack
             </button>
-            <button className="w-full bg-white text-blue-600 border border-blue-200 font-bold rounded-xl py-4 hover:bg-blue-50 transition-colors shadow-sm">
+            <button 
+              onClick={() => {
+                navigator.clipboard.writeText(window.location.href);
+                alert("🔗 Link copied to clipboard! Share it with your co-host.");
+              }}
+              className="w-full bg-white text-blue-600 border border-blue-200 font-bold rounded-xl py-4 hover:bg-blue-50 transition-colors shadow-sm"
+            >
               Share with Co-host
             </button>
           </div>

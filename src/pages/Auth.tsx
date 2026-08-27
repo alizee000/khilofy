@@ -46,8 +46,10 @@ export default function Auth() {
     }
 
     if (error) {
-      setError('Demo login failed: ' + error.message);
-      setLoading(false);
+      // If we hit a rate limit or another Supabase block during the demo login, fallback to local Guest Mode so they can still test the app!
+      console.warn("Supabase Auth failed, falling back to Guest Mode:", error.message);
+      localStorage.setItem('khilofy_guest', 'true');
+      window.location.reload(); // Reload to let AuthContext pick up the guest session
     } else {
       navigate(from, { replace: true });
     }
