@@ -65,7 +65,7 @@ export default function Auth() {
   return (
     <div className="w-full bg-white min-h-screen flex flex-col relative">
       <div className="absolute top-0 w-full h-72 z-0">
-        <img src="/auth-banner.jpg" alt="KheloNDedo Flow" className="w-full h-full object-cover object-top" />
+        <img src="/auth-banner.jpg" alt="Khelo N Dedo Flow" className="w-full h-full object-cover object-top" />
         <div className="absolute inset-0 bg-gradient-to-t from-white via-white/60 to-transparent"></div>
       </div>
 
@@ -78,7 +78,7 @@ export default function Auth() {
       <div className="flex-1 flex flex-col justify-end px-6 pb-12 pt-48 relative z-10">
         
         <h1 className="text-5xl font-display font-black text-brand-500 mb-1 tracking-tight drop-shadow-sm">
-          KheloNDedo
+          Khelo N Dedo
         </h1>
         <h2 className="text-xl font-bold text-gray-900 mb-2">
           {isLogin ? 'Welcome back!' : 'Rent. Play. Return.'}

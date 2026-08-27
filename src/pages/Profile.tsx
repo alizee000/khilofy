@@ -95,7 +95,7 @@ export default function Profile() {
           <div className="flex justify-between items-start mb-4">
             <div>
               <h3 className="text-lg font-bold text-gray-900">Give ₹100, Get ₹100</h3>
-              <p className="text-xs text-gray-500 mt-1">Invite friends to KheloNDedo</p>
+              <p className="text-xs text-gray-500 mt-1">Invite friends to Khelo N Dedo</p>
             </div>
             <div className="bg-brand-50 p-2 rounded-full text-brand-500">
               <Gift size={20} />
