@@ -21,6 +21,7 @@ export default function Checkout() {
   const [isSuccess, setIsSuccess] = useState(false);
   const [loading, setLoading] = useState(false);
   const [paymentMethod, setPaymentMethod] = useState<'online' | 'cod'>('cod');
+  const [hasInsurance, setHasInsurance] = useState(true);
 
   const rentalFee = checkoutToys.reduce((sum, t) => {
     const dur = t.selectedDuration || 1;
@@ -32,7 +33,8 @@ export default function Checkout() {
   
   const deposit = checkoutToys.reduce((sum, t) => sum + t.deposit, 0);
   const deliveryFee = checkoutToys.length > 0 ? 99 : 0;
-  const total = rentalFee + deliveryFee + deposit;
+  const insuranceFee = hasInsurance ? 49 : 0;
+  const total = rentalFee + deliveryFee + deposit + insuranceFee;
 
   const handlePay = async () => {
     if (!user || checkoutToys.length === 0) return;
@@ -59,6 +61,7 @@ export default function Checkout() {
             paymentMethod: paymentMethod === 'cod' ? 'Cash on Delivery' : 'Online',
             address: state.user?.location?.address || 'Bangalore',
             customerEmail: user.email,
+            oopsieInsurance: hasInsurance ? 'Yes (+₹49)' : 'No',
           })
         }).catch(err => console.error("Email notification failed", err));
         
@@ -111,6 +114,7 @@ export default function Checkout() {
           paymentMethod: paymentMethod === 'cod' ? 'Cash on Delivery' : 'Online',
           address: state.user?.location?.address || 'Bangalore',
           customerEmail: user.email,
+          oopsieInsurance: hasInsurance ? 'Yes (+₹49)' : 'No',
         })
       }).catch(err => console.error("Email notification failed", err));
       
@@ -216,6 +220,30 @@ export default function Checkout() {
           </div>
         </div>
 
+        {/* Oopsie Insurance (Damage Waiver) */}
+        <label className={`bg-white rounded-2xl p-4 shadow-sm flex items-start gap-3 border-2 cursor-pointer transition-all ${hasInsurance ? 'border-brand-500 bg-brand-50/50' : 'border-transparent'}`}>
+          <div className="mt-0.5">
+            <input 
+              type="checkbox" 
+              checked={hasInsurance} 
+              onChange={() => setHasInsurance(!hasInsurance)} 
+              className="text-brand-600 rounded focus:ring-brand-500 h-5 w-5" 
+            />
+          </div>
+          <div className="flex-1">
+            <div className="flex items-center justify-between">
+              <h3 className="font-bold text-gray-900 flex items-center gap-1">
+                <ShieldCheck size={16} className="text-brand-500" />
+                Oopsie Insurance
+              </h3>
+              <span className="font-bold text-brand-600">+₹49</span>
+            </div>
+            <p className="text-xs text-gray-500 mt-1 leading-snug">
+              Kids will be kids! Don't lose your deposit if the toy gets accidentally broken. Adds peace of mind for just ₹49.
+            </p>
+          </div>
+        </label>
+
         {/* Payment Breakdown */}
         <div className="bg-white rounded-2xl p-4 shadow-sm">
           <h3 className="font-bold text-gray-900 mb-4">Price Breakdown</h3>
@@ -229,6 +257,14 @@ export default function Checkout() {
               <span className="text-gray-600">Delivery & Pickup</span>
               <span className="font-semibold text-gray-900">₹{deliveryFee}</span>
             </div>
+            
+            {hasInsurance && (
+              <div className="flex justify-between items-center text-sm">
+                <span className="text-brand-600 flex items-center gap-1"><ShieldCheck size={14}/> Oopsie Insurance</span>
+                <span className="font-semibold text-gray-900">₹49</span>
+              </div>
+            )}
+
             <div className="flex justify-between items-center text-sm pt-3 border-t border-dashed border-gray-200">
               <div className="flex items-center gap-1">
                 <span className="text-gray-800 font-semibold">Refundable Deposit</span>
