@@ -11,7 +11,7 @@ export default function ToyCard({ toy }: ToyCardProps) {
     <Link to={`/toy/${toy.id}`} className="block bg-white rounded-2xl overflow-hidden shadow-soft border border-gray-100 hover:shadow-lg transition-all duration-300">
       <div className="relative aspect-[4/3] overflow-hidden bg-gray-100">
         <img 
-          src={toy.images[0]} 
+          src={toy.images?.[0] || 'https://images.unsplash.com/photo-1558066551-789d21c37990?auto=format&fit=crop&w=800&q=80'} 
           alt={toy.name} 
           onError={(e) => { e.currentTarget.src = 'https://images.unsplash.com/photo-1558066551-789d21c37990?auto=format&fit=crop&w=800&q=80' }}
           className="w-full h-full object-cover"

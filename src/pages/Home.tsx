@@ -193,9 +193,11 @@ export default function Home() {
               No toys found matching "{searchQuery}"
             </div>
           ) : (
-            <div className="flex flex-col gap-4">
+            <div className="flex overflow-x-auto gap-4 pb-4 mb-4 snap-x snap-mandatory no-scrollbar -mx-4 px-4">
               {displayedToys.map(toy => (
-                <ToyCard key={toy.id} toy={toy} />
+                <div key={toy.id} className="shrink-0 w-48 snap-start">
+                  <ToyCard toy={toy} />
+                </div>
               ))}
             </div>
           )}
