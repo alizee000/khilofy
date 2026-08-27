@@ -131,13 +131,17 @@ export default function Home() {
             </h3>
             <span onClick={() => navigate('/discover')} className="text-sm font-medium text-brand-600 cursor-pointer hover:underline">See all</span>
           </div>
-          <div className="grid grid-cols-2 gap-4 mb-8">
-            {displayedToys.filter(t => t.targetGender === 'Boy').slice(0, 2).map(toy => (
-              <ToyCard key={toy.id} toy={toy} />
+          <div className="flex overflow-x-auto gap-4 pb-4 mb-4 snap-x snap-mandatory no-scrollbar -mx-4 px-4">
+            {displayedToys.filter(t => t.targetGender === 'Boy').map(toy => (
+              <div key={toy.id} className="shrink-0 w-48 snap-start">
+                <ToyCard toy={toy} />
+              </div>
             ))}
             {/* Fallback if no specific boy toys fetched yet */}
-            {displayedToys.filter(t => t.targetGender === 'Boy').length === 0 && displayedToys.slice(0, 2).map(toy => (
-               <ToyCard key={toy.id} toy={toy} />
+            {displayedToys.filter(t => t.targetGender === 'Boy').length === 0 && displayedToys.slice(0, 4).map(toy => (
+               <div key={toy.id} className="shrink-0 w-48 snap-start">
+                 <ToyCard toy={toy} />
+               </div>
             ))}
           </div>
         </div>
@@ -150,13 +154,17 @@ export default function Home() {
             </h3>
             <span onClick={() => navigate('/discover')} className="text-sm font-medium text-brand-600 cursor-pointer hover:underline">See all</span>
           </div>
-          <div className="grid grid-cols-2 gap-4 mb-8">
-            {displayedToys.filter(t => t.targetGender === 'Girl').slice(0, 2).map(toy => (
-              <ToyCard key={toy.id} toy={toy} />
+          <div className="flex overflow-x-auto gap-4 pb-4 mb-4 snap-x snap-mandatory no-scrollbar -mx-4 px-4">
+            {displayedToys.filter(t => t.targetGender === 'Girl').map(toy => (
+              <div key={toy.id} className="shrink-0 w-48 snap-start">
+                <ToyCard toy={toy} />
+              </div>
             ))}
             {/* Fallback if no specific girl toys fetched yet */}
-            {displayedToys.filter(t => t.targetGender === 'Girl').length === 0 && displayedToys.slice(2, 4).map(toy => (
-               <ToyCard key={toy.id} toy={toy} />
+            {displayedToys.filter(t => t.targetGender === 'Girl').length === 0 && displayedToys.slice(4, 8).map(toy => (
+               <div key={toy.id} className="shrink-0 w-48 snap-start">
+                 <ToyCard toy={toy} />
+               </div>
             ))}
           </div>
         </div>

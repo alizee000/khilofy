@@ -13,6 +13,7 @@ export default function ToyCard({ toy }: ToyCardProps) {
         <img 
           src={toy.images[0]} 
           alt={toy.name} 
+          onError={(e) => { e.currentTarget.src = 'https://images.unsplash.com/photo-1558066551-789d21c37990?auto=format&fit=crop&w=800&q=80' }}
           className="w-full h-full object-cover"
         />
         <div className="absolute top-3 left-3 bg-white/90 backdrop-blur-sm px-2 py-1 rounded-full text-xs font-semibold text-gray-800 flex items-center gap-1">
