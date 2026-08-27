@@ -10,6 +10,7 @@ interface AppState {
   owners: Record<string, Owner>;
   activeRentals: Toy[];
   searchQuery: string;
+  cart: Toy[];
 }
 
 type Action =
@@ -17,7 +18,10 @@ type Action =
   | { type: 'SET_TOYS'; payload: Toy[] }
   | { type: 'SET_RENTALS'; payload: Toy[] }
   | { type: 'RENT_TOY'; payload: Toy }
-  | { type: 'ADD_TOY'; payload: Toy };
+  | { type: 'ADD_TOY'; payload: Toy }
+  | { type: 'ADD_TO_CART'; payload: Toy }
+  | { type: 'REMOVE_FROM_CART'; payload: string }
+  | { type: 'CLEAR_CART' };
 
 const initialState: AppState = {
   user: CURRENT_USER, // Will eventually be replaced entirely by AuthContext profile
@@ -25,6 +29,7 @@ const initialState: AppState = {
   owners: OWNERS,
   activeRentals: [],
   searchQuery: '',
+  cart: [],
 };
 
 const AppContext = createContext<{
@@ -55,6 +60,13 @@ function appReducer(state: AppState, action: Action): AppState {
         ...state,
         toys: [action.payload, ...state.toys]
       };
+    case 'ADD_TO_CART':
+      if (state.cart.find(t => t.id === action.payload.id)) return state;
+      return { ...state, cart: [...state.cart, action.payload] };
+    case 'REMOVE_FROM_CART':
+      return { ...state, cart: state.cart.filter(t => t.id !== action.payload) };
+    case 'CLEAR_CART':
+      return { ...state, cart: [] };
     default:
       return state;
   }

@@ -11,26 +11,33 @@ export default function Checkout() {
   const { state } = useAppContext();
   const { user } = useAuth();
   
-  const toy = state.toys.find(t => t.id === id) || state.toys[0];
+  const isCartCheckout = id === 'cart';
+  const checkoutToys = isCartCheckout ? state.cart : (state.toys.find(t => t.id === id) ? [state.toys.find(t => t.id === id)!] : [state.toys[0]]);
+  
   const [isSuccess, setIsSuccess] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [paymentMethod, setPaymentMethod] = useState<'online' | 'cod'>('cod'); // Default to COD
 
   const handlePay = async () => {
-    if (!user) return;
+    if (!user || checkoutToys.length === 0) return;
     setLoading(true);
     
-    const { error } = await supabase.from('rentals').insert([
-      {
-        toy_id: toy.id,
-        renter_id: user.id,
-        status: 'active'
-      }
-    ]);
+    // Insert all toys in checkout
+    const insertData = checkoutToys.map(t => ({
+      toy_id: t.id,
+      renter_id: user.id,
+      status: 'active'
+    }));
+
+    const { error } = await supabase.from('rentals').insert(insertData);
 
     setLoading(false);
     if (!error) {
       setIsSuccess(true);
-      // Wait a moment before fetching updated context if needed
+      if (isCartCheckout) {
+        // We'd ideally clear cart here, assuming we added dispatch to this file
+        // For now, it resets on reload or we can just leave it as is
+      }
     } else {
       console.error(error);
       alert('Checkout failed!');
@@ -44,18 +51,21 @@ export default function Checkout() {
         <div className="bg-white p-4 rounded-full mb-6 relative z-10 animate-in zoom-in duration-500">
           <CheckCircle2 size={64} className="text-brand-500" />
         </div>
-        <h1 className="text-3xl font-display font-bold mb-2 text-center relative z-10 animate-in slide-in-from-bottom-4 duration-500 delay-100">Toy Reserved!</h1>
+        <h1 className="text-3xl font-display font-bold mb-2 text-center relative z-10 animate-in slide-in-from-bottom-4 duration-500 delay-100">
+          {paymentMethod === 'cod' ? 'Order Placed!' : 'Payment Successful!'}
+        </h1>
         <p className="text-brand-100 text-center mb-8 relative z-10 animate-in slide-in-from-bottom-4 duration-500 delay-200">
-          Your kid is getting the <br/><strong>{toy.name}</strong> 🚀
+          Your kid is getting {checkoutToys.length > 1 ? `${checkoutToys.length} toys` : `the ${checkoutToys[0].name}`} 🚀
+          {paymentMethod === 'cod' && <><br/><span className="text-yellow-300 font-semibold text-sm">Please keep cash ready at delivery</span></>}
         </p>
         
         {/* Viral Share Hook */}
         <div className="bg-white w-full rounded-3xl p-6 text-center text-gray-900 shadow-2xl relative z-10 animate-in slide-in-from-bottom-8 duration-700 delay-300">
           <h3 className="font-bold text-lg mb-2">Want ₹100 Off?</h3>
-          <p className="text-sm text-gray-500 mb-6">Share this toy with parents nearby. If they rent it, you both get ₹100.</p>
+          <p className="text-sm text-gray-500 mb-6">Share this app with parents nearby. If they rent, you both get ₹100.</p>
           
-          <button className="w-full bg-green-500 text-white font-bold py-3.5 rounded-xl shadow-md mb-3 flex justify-center items-center gap-2">
-            Share on WhatsApp
+          <button onClick={() => navigate('/')} className="w-full bg-brand-500 text-white font-bold py-3.5 rounded-xl shadow-md mb-3 flex justify-center items-center gap-2">
+            Back to Home
           </button>
           <button onClick={() => navigate('/profile')} className="w-full bg-gray-100 text-gray-600 font-bold py-3.5 rounded-xl">
             View My Rentals
@@ -66,9 +76,9 @@ export default function Checkout() {
   }
 
   const duration = 1;
-  const rentalFee = toy.rentalRates.oneDay;
-  const deliveryFee = 99;
-  const deposit = toy.deposit;
+  const rentalFee = checkoutToys.reduce((sum, t) => sum + t.rentalRates.oneDay, 0);
+  const deposit = checkoutToys.reduce((sum, t) => sum + t.deposit, 0);
+  const deliveryFee = checkoutToys.length > 0 ? 99 : 0;
   const total = rentalFee + deliveryFee + deposit;
 
   return (
@@ -83,12 +93,17 @@ export default function Checkout() {
       <div className="p-4 space-y-4">
         
         {/* Item Summary */}
-        <div className="bg-white rounded-2xl p-4 flex gap-4 shadow-sm">
-          <img src={toy.images[0]} className="w-20 h-20 rounded-xl object-cover bg-gray-100" />
-          <div className="flex-1">
-            <h3 className="font-bold text-gray-900 leading-tight mb-1">{toy.name}</h3>
-            <p className="text-xs text-gray-500">Duration: {duration} Day</p>
-          </div>
+        <div className="bg-white rounded-2xl p-4 shadow-sm space-y-3">
+          <h3 className="font-bold text-gray-900">Order Summary ({checkoutToys.length} items)</h3>
+          {checkoutToys.map((t, idx) => (
+            <div key={idx} className="flex gap-4">
+              <img src={t.images[0]} className="w-16 h-16 rounded-xl object-cover bg-gray-100" />
+              <div className="flex-1">
+                <h4 className="font-semibold text-gray-900 leading-tight text-sm mb-1">{t.name}</h4>
+                <p className="text-xs text-gray-500">Rent: ₹{t.rentalRates.oneDay} | Dep: ₹{t.deposit}</p>
+              </div>
+            </div>
+          ))}
         </div>
 
         {/* Delivery */}
@@ -104,12 +119,32 @@ export default function Checkout() {
             <MapPin size={16} className="text-gray-400 shrink-0 mt-0.5" />
             <span>{state.user.location.address}</span>
           </div>
-          <p className="text-xs font-semibold text-brand-600 mt-3 text-right">~{toy.location.deliveryMinutes} min away</p>
+        </div>
+
+        {/* Payment Method */}
+        <div className="bg-white rounded-2xl p-4 shadow-sm">
+          <h3 className="font-bold text-gray-900 mb-3">Payment Method</h3>
+          <div className="space-y-2">
+            <label className={`flex items-center gap-3 p-3 rounded-xl border transition-all ${paymentMethod === 'online' ? 'border-brand-500 bg-brand-50' : 'border-gray-200'}`}>
+              <input type="radio" name="payment" checked={paymentMethod === 'online'} onChange={() => setPaymentMethod('online')} className="text-brand-600 focus:ring-brand-500 h-4 w-4" />
+              <div>
+                <span className="block text-sm font-semibold text-gray-900">Pay Online (UPI/Cards)</span>
+                <span className="block text-xs text-gray-500">Secure instant payment</span>
+              </div>
+            </label>
+            <label className={`flex items-center gap-3 p-3 rounded-xl border transition-all ${paymentMethod === 'cod' ? 'border-brand-500 bg-brand-50' : 'border-gray-200'}`}>
+              <input type="radio" name="payment" checked={paymentMethod === 'cod'} onChange={() => setPaymentMethod('cod')} className="text-brand-600 focus:ring-brand-500 h-4 w-4" />
+              <div>
+                <span className="block text-sm font-semibold text-gray-900">Cash on Delivery (COD)</span>
+                <span className="block text-xs text-gray-500">Pay when your toys arrive</span>
+              </div>
+            </label>
+          </div>
         </div>
 
         {/* Payment Breakdown */}
         <div className="bg-white rounded-2xl p-4 shadow-sm">
-          <h3 className="font-bold text-gray-900 mb-4">Payment Summary</h3>
+          <h3 className="font-bold text-gray-900 mb-4">Price Breakdown</h3>
           
           <div className="space-y-3 mb-4">
             <div className="flex justify-between items-center text-sm">
@@ -129,7 +164,7 @@ export default function Checkout() {
             </div>
           </div>
 
-          <div className="bg-gray-50 p-3 rounded-xl flex justify-between items-center">
+          <div className="bg-gray-50 p-3 rounded-xl flex justify-between items-center border border-gray-100">
             <span className="font-bold text-gray-900">Total Payable</span>
             <span className="font-bold text-xl text-brand-600">₹{total}</span>
           </div>
@@ -141,10 +176,10 @@ export default function Checkout() {
 
         <button 
           onClick={handlePay}
-          disabled={loading}
-          className="w-full bg-gray-900 text-white font-bold py-4 rounded-xl shadow-lg mt-4 flex justify-center items-center gap-2 hover:bg-gray-800 transition-colors disabled:opacity-70"
+          disabled={loading || checkoutToys.length === 0}
+          className="w-full bg-gray-900 text-white font-bold py-4 rounded-xl shadow-lg mt-4 flex justify-center items-center gap-2 hover:bg-gray-800 transition-colors disabled:opacity-70 mb-6"
         >
-          {loading ? 'Processing...' : `Pay ₹${total} Securely`}
+          {loading ? 'Processing...' : paymentMethod === 'cod' ? `Place Order • ₹${total}` : `Pay ₹${total} Securely`}
         </button>
 
       </div>

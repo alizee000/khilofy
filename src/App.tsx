@@ -8,6 +8,7 @@ import Birthday from './pages/Birthday';
 import ListToy from './pages/ListToy';
 import Profile from './pages/Profile';
 import ToyDetail from './pages/ToyDetail';
+import Cart from './pages/Cart';
 import Checkout from './pages/Checkout';
 import Auth from './pages/Auth';
 
@@ -48,6 +49,7 @@ function App() {
             <Route path="/discover" element={<ProtectedRoute><AppLayout><Discover /></AppLayout></ProtectedRoute>} />
             <Route path="/birthday" element={<ProtectedRoute><AppLayout><Birthday /></AppLayout></ProtectedRoute>} />
             <Route path="/toy/:id" element={<ProtectedRoute><div className="max-w-md mx-auto bg-white min-h-screen shadow-xl"><ToyDetail /></div></ProtectedRoute>} />
+            <Route path="/cart" element={<ProtectedRoute><div className="max-w-md mx-auto bg-white min-h-screen shadow-xl"><Cart /></div></ProtectedRoute>} />
             
             <Route path="/list" element={<ProtectedRoute><AppLayout><ListToy /></AppLayout></ProtectedRoute>} />
             <Route path="/profile" element={<ProtectedRoute><AppLayout><Profile /></AppLayout></ProtectedRoute>} />

@@ -6,7 +6,7 @@ import { useAppContext } from '../context/AppContext';
 export default function ToyDetail() {
   const { id } = useParams();
   const navigate = useNavigate();
-  const { state } = useAppContext();
+  const { state, dispatch } = useAppContext();
   
   // Find toy from global live state, fallback to mock if loading
   const toy = state.toys.find(t => t.id === id) || state.toys[0] || TOYS[0];
@@ -20,6 +20,14 @@ export default function ToyDetail() {
           <ChevronLeft size={24} />
         </button>
         <div className="flex gap-2">
+          <Link to="/cart" className="bg-white/90 backdrop-blur p-2 rounded-full shadow-sm text-gray-600 relative">
+            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="8" cy="21" r="1"/><circle cx="19" cy="21" r="1"/><path d="M2.05 2.05h2l2.66 12.42a2 2 0 0 0 2 1.58h9.78a2 2 0 0 0 1.95-1.57l1.65-7.43H5.12"/></svg>
+            {state.cart.length > 0 && (
+              <span className="absolute -top-1 -right-1 bg-brand-500 text-white text-[10px] font-bold w-4 h-4 rounded-full flex items-center justify-center">
+                {state.cart.length}
+              </span>
+            )}
+          </Link>
           <button className="bg-white/90 backdrop-blur p-2 rounded-full shadow-sm text-gray-600">
             <Heart size={20} />
           </button>
@@ -143,8 +151,14 @@ export default function ToyDetail() {
       {/* Sticky Bottom Action */}
       <div className="fixed bottom-0 left-0 right-0 p-4 bg-white border-t border-gray-100 pb-safe z-50">
         <div className="max-w-md mx-auto flex gap-3">
-          <Link to={`/checkout/${toy.id}`} className="flex-1 bg-brand-500 text-white font-bold py-3.5 rounded-xl text-center shadow-lg hover:bg-brand-600 transition-colors">
-            Rent Now • ₹{toy.rentalRates.oneDay}
+          <button 
+            onClick={() => dispatch({ type: 'ADD_TO_CART', payload: toy })} 
+            className="flex-1 bg-white border-2 border-brand-500 text-brand-600 font-bold py-3.5 rounded-xl text-center shadow-sm hover:bg-brand-50 transition-colors"
+          >
+            Add to Cart
+          </button>
+          <Link to={`/checkout/${toy.id}`} className="flex-1 bg-brand-500 text-white font-bold py-3.5 rounded-xl text-center shadow-lg hover:bg-brand-600 transition-colors flex items-center justify-center gap-1">
+            Rent Now <span className="text-xs font-normal">₹{toy.rentalRates.oneDay}</span>
           </Link>
         </div>
       </div>
