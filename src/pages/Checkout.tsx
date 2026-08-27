@@ -28,6 +28,15 @@ export default function Checkout() {
     if (!user || checkoutToys.length === 0) return;
     setLoading(true);
     
+    // Check if in Guest Mode
+    if (user.id === '00000000-0000-0000-0000-000000000000') {
+      setTimeout(() => {
+        setLoading(false);
+        setIsSuccess(true);
+      }, 800);
+      return;
+    }
+
     // 1. Create the Order to track payment
     const { data: orderData, error: orderError } = await supabase.from('orders').insert({
       user_id: user.id,

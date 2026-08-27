@@ -1,5 +1,6 @@
+import { useState } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
-import { Share2, Heart, ShieldCheck, MapPin, Star, Sparkles, ChevronLeft } from 'lucide-react';
+import { Share2, Heart, ShieldCheck, MapPin, Star, Sparkles, ChevronLeft, Check } from 'lucide-react';
 import { TOYS, OWNERS } from '../data/seedData';
 import { useAppContext } from '../context/AppContext';
 
@@ -7,6 +8,7 @@ export default function ToyDetail() {
   const { id } = useParams();
   const navigate = useNavigate();
   const { state, dispatch } = useAppContext();
+  const [added, setAdded] = useState(false);
   
   // Find toy from global live state, fallback to mock if loading
   const toy = state.toys.find(t => t.id === id) || state.toys[0] || TOYS[0];
@@ -152,10 +154,16 @@ export default function ToyDetail() {
       <div className="fixed bottom-0 left-0 right-0 p-4 bg-white border-t border-gray-100 pb-safe z-50">
         <div className="max-w-md mx-auto flex gap-3">
           <button 
-            onClick={() => dispatch({ type: 'ADD_TO_CART', payload: toy })} 
-            className="flex-1 bg-white border-2 border-brand-500 text-brand-600 font-bold py-3.5 rounded-xl text-center shadow-sm hover:bg-brand-50 transition-colors"
+            onClick={() => {
+              dispatch({ type: 'ADD_TO_CART', payload: toy });
+              setAdded(true);
+              setTimeout(() => setAdded(false), 2000);
+            }} 
+            className={`flex-1 flex items-center justify-center gap-2 border-2 font-bold py-3.5 rounded-xl text-center shadow-sm transition-all ${
+              added ? 'bg-brand-50 border-brand-500 text-brand-600' : 'bg-white border-brand-500 text-brand-600 hover:bg-brand-50'
+            }`}
           >
-            Add to Cart
+            {added ? <><Check size={18} /> Added</> : 'Add to Cart'}
           </button>
           <Link to={`/checkout/${toy.id}`} className="flex-1 bg-brand-500 text-white font-bold py-3.5 rounded-xl text-center shadow-lg hover:bg-brand-600 transition-colors flex items-center justify-center gap-1">
             Rent Now <span className="text-xs font-normal">₹{toy.rentalRates.oneDay}</span>
