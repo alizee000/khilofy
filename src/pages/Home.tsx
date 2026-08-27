@@ -1,5 +1,5 @@
-import { useState, useEffect } from 'react';
-import { Search, Sparkles, Navigation } from 'lucide-react';
+import { useState, useEffect, useRef } from 'react';
+import { Search, Sparkles, Navigation, Play, Square, Music } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import ToyCard from '../components/ToyCard';
 import { useAppContext } from '../context/AppContext';
@@ -12,6 +12,8 @@ export default function Home() {
   const { toys, user, searchQuery } = state;
   
   const [locationName, setLocationName] = useState('Finding location...');
+  const [isPlaying, setIsPlaying] = useState(false);
+  const audioRef = useRef<HTMLAudioElement | null>(null);
 
   useEffect(() => {
     if (navigator.geolocation) {
@@ -121,6 +123,48 @@ export default function Home() {
               </button>
             ))}
           </div>
+        </div>
+
+        {/* Playlist / Audio Player */}
+        <div className="bg-gradient-to-r from-gray-900 to-gray-800 rounded-2xl p-3 flex items-center justify-between shadow-lg border border-gray-700">
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 bg-gray-700 rounded-xl flex items-center justify-center text-brand-400 relative overflow-hidden">
+              <Music size={20} />
+              {isPlaying && <div className="absolute inset-0 bg-brand-500/20 animate-pulse"></div>}
+            </div>
+            <div>
+              <h4 className="font-bold text-white text-sm">Theme Song</h4>
+              <p className="text-xs text-gray-400">Khelo N Dedo Vibes</p>
+            </div>
+          </div>
+          
+          <div className="flex items-center gap-2">
+            <button 
+              onClick={() => {
+                if (audioRef.current) {
+                  audioRef.current.play();
+                  setIsPlaying(true);
+                }
+              }}
+              className={`p-2 rounded-full transition-colors ${isPlaying ? 'bg-brand-500 text-white shadow-sm' : 'bg-gray-700 text-gray-300 hover:bg-gray-600'}`}
+            >
+              <Play size={16} fill={isPlaying ? "currentColor" : "none"} />
+            </button>
+            <button 
+              onClick={() => {
+                if (audioRef.current) {
+                  audioRef.current.pause();
+                  audioRef.current.currentTime = 0; // stop resets to 0
+                  setIsPlaying(false);
+                }
+              }}
+              className="p-2 rounded-full bg-gray-700 text-gray-300 hover:bg-gray-600 transition-colors"
+            >
+              <Square size={16} fill="currentColor" />
+            </button>
+          </div>
+          
+          <audio ref={audioRef} src="/bg-music.mp3" loop onEnded={() => setIsPlaying(false)} className="hidden" />
         </div>
 
         {/* Visual Actions / Modes */}
