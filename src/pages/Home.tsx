@@ -93,9 +93,13 @@ export default function Home() {
               <button
                 key={cat.label}
                 onClick={() => {
-                  dispatch({ type: 'SET_SEARCH', payload: cat.search });
-                  // Scroll down a bit to show results
-                  window.scrollTo({ top: 300, behavior: 'smooth' });
+                  if (searchQuery === cat.search) {
+                    dispatch({ type: 'SET_SEARCH', payload: '' }); // Clear filter if clicked twice
+                  } else {
+                    dispatch({ type: 'SET_SEARCH', payload: cat.search });
+                    // Scroll down a bit to show results
+                    window.scrollTo({ top: 300, behavior: 'smooth' });
+                  }
                 }}
                 className={`whitespace-nowrap px-4 py-2 rounded-full text-sm font-medium shadow-sm border transition-all ${
                   searchQuery === cat.search 
