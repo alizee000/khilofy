@@ -43,7 +43,7 @@ export default function Checkout() {
             'Accept': 'application/json'
           },
           body: JSON.stringify({
-            subject: '🚀 New Khilofy Order (Guest)!',
+            subject: '🚀 New KheloNDedo Order (Guest)!',
             toys: toyNames,
             total: `₹${total}`,
             paymentMethod: paymentMethod === 'cod' ? 'Cash on Delivery' : 'Online',
@@ -95,7 +95,7 @@ export default function Checkout() {
           'Accept': 'application/json'
         },
         body: JSON.stringify({
-          subject: '🚀 New Khilofy Order!',
+          subject: '🚀 New KheloNDedo Order!',
           toys: toyNames,
           total: `₹${total}`,
           paymentMethod: paymentMethod === 'cod' ? 'Cash on Delivery' : 'Online',

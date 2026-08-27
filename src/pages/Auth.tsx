@@ -41,7 +41,7 @@ export default function Auth() {
   const handleDemoLogin = async () => {
     setLoading(true);
     setError('');
-    const demoEmail = 'test@khilofy.in';
+    const demoEmail = 'test@khelondedo.in';
     const demoPassword = 'testpassword123';
     
     let { error } = await supabase.auth.signInWithPassword({ email: demoEmail, password: demoPassword });
@@ -55,7 +55,7 @@ export default function Auth() {
     if (error) {
       // If we hit a rate limit or another Supabase block during the demo login, fallback to local Guest Mode so they can still test the app!
       console.warn("Supabase Auth failed, falling back to Guest Mode:", error.message);
-      localStorage.setItem('khilofy_guest', 'true');
+      localStorage.setItem('khelondedo_guest', 'true');
       window.location.reload(); // Reload to let AuthContext pick up the guest session
     } else {
       navigate(from, { replace: true });
@@ -64,24 +64,26 @@ export default function Auth() {
 
   return (
     <div className="w-full bg-white min-h-screen flex flex-col relative">
+      <div className="absolute top-0 w-full h-72 z-0">
+        <img src="/auth-banner.jpg" alt="KheloNDedo Flow" className="w-full h-full object-cover object-top" />
+        <div className="absolute inset-0 bg-gradient-to-t from-white via-white/60 to-transparent"></div>
+      </div>
+
       <div className="px-4 py-4 flex items-center gap-4 sticky top-0 z-10">
-        <button onClick={() => navigate(-1)} className="p-1 text-gray-500">
+        <button onClick={() => navigate(-1)} className="p-1 text-white bg-black/20 rounded-full backdrop-blur-md shadow-sm">
           <ChevronLeft size={24} />
         </button>
       </div>
       
-      <div className="flex-1 flex flex-col justify-center px-6 pb-20">
-        <div className="w-16 h-16 bg-brand-100 rounded-3xl flex items-center justify-center mb-6">
-          <span className="text-3xl">🧸</span>
-        </div>
+      <div className="flex-1 flex flex-col justify-end px-6 pb-12 pt-48 relative z-10">
         
-        <h1 className="text-4xl font-display font-black text-brand-500 mb-1 tracking-tight">
-          Khilofy
+        <h1 className="text-5xl font-display font-black text-brand-500 mb-1 tracking-tight drop-shadow-sm">
+          KheloNDedo
         </h1>
         <h2 className="text-xl font-bold text-gray-900 mb-2">
           {isLogin ? 'Welcome back!' : 'Rent. Play. Return.'}
         </h2>
-        <p className="text-gray-500 mb-8">
+        <p className="text-gray-600 mb-8 font-medium">
           {isLogin ? 'Sign in to access your rentals and earnings.' : 'Start renting, earning, and saving today.'}
         </p>
 

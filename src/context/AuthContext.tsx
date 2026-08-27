@@ -23,12 +23,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    const isGuest = localStorage.getItem('khilofy_guest') === 'true';
+    const isGuest = localStorage.getItem('khelondedo_guest') === 'true';
 
     // Get initial session
     const checkAuth = async () => {
       if (isGuest) {
-        const mockUser = { id: '00000000-0000-0000-0000-000000000000', email: 'guest@khilofy.in' } as User;
+        const mockUser = { id: '00000000-0000-0000-0000-000000000000', email: 'guest@khelondedo.in' } as User;
         setSession({ user: mockUser, access_token: 'mock', refresh_token: 'mock', expires_in: 9999, expires_at: 9999, token_type: 'bearer' });
         setUser(mockUser);
         setProfile({ id: '00000000-0000-0000-0000-000000000000', full_name: 'Guest User', avatar_url: 'https://api.dicebear.com/7.x/avataaars/svg?seed=Guest' });
