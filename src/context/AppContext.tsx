@@ -83,6 +83,7 @@ const mapSupabaseToy = (row: any): Toy => ({
   rating: 5.0,
   reviewsCount: 0,
   recentRentalsCount: 0,
+  targetGender: row.target_gender || 'Unisex',
   createdAt: row.created_at,
 });
 

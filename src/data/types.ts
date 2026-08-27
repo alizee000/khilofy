@@ -41,6 +41,7 @@ export interface Toy {
   rating: number;
   reviewsCount: number;
   recentRentalsCount: number; // for trending score
+  targetGender?: 'Boy' | 'Girl' | 'Unisex';
   createdAt: string;
 }
 
