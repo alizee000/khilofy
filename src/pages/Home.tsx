@@ -1,12 +1,42 @@
-import { Search, MapPin, Sparkles } from 'lucide-react';
+import { useState, useEffect } from 'react';
+import { Search, Sparkles, Navigation } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import ToyCard from '../components/ToyCard';
 import { useAppContext } from '../context/AppContext';
+import { useAuth } from '../context/AuthContext';
 
 export default function Home() {
   const navigate = useNavigate();
   const { state, dispatch } = useAppContext();
+  const { profile } = useAuth();
   const { toys, user, searchQuery } = state;
+  
+  const [locationName, setLocationName] = useState('Finding location...');
+
+  useEffect(() => {
+    if (navigator.geolocation) {
+      navigator.geolocation.getCurrentPosition(
+        async (position) => {
+          try {
+            const res = await fetch(`https://nominatim.openstreetmap.org/reverse?lat=${position.coords.latitude}&lon=${position.coords.longitude}&format=json`);
+            const data = await res.json();
+            if (data && data.address) {
+              setLocationName(data.address.suburb || data.address.city || data.address.town || 'Current Location');
+            } else {
+              setLocationName('Bangalore');
+            }
+          } catch (e) {
+            setLocationName('Bangalore');
+          }
+        },
+        () => {
+          setLocationName('Bangalore'); // Fallback if permission denied
+        }
+      );
+    } else {
+      setLocationName('Bangalore');
+    }
+  }, []);
 
   // Filter toys based on search
   const displayedToys = toys.filter(t => 
@@ -22,14 +52,14 @@ export default function Home() {
       <div className="bg-white px-4 pt-6 pb-4 rounded-b-3xl shadow-sm z-10 sticky top-0">
         <div className="flex justify-between items-start mb-4">
           <div>
-            <h2 className="text-gray-500 text-sm font-medium flex items-center gap-1">
-              <MapPin size={14} className="text-brand-500" /> {user.location.address}
+            <h2 className="text-gray-500 text-sm font-medium flex items-center gap-1 cursor-pointer hover:text-brand-600 transition-colors">
+              <Navigation size={14} className="text-brand-500" /> {locationName}
             </h2>
             <h1 className="text-2xl font-display font-bold text-gray-900 mt-1">
               What are we <span className="text-brand-500">playing</span> today?
             </h1>
           </div>
-          <img src={user.avatarUrl} alt="User" className="w-10 h-10 rounded-full border-2 border-brand-100" />
+          <img src={profile?.avatar_url || user.avatarUrl} alt="User" className="w-10 h-10 rounded-full border-2 border-brand-100 bg-gray-100" />
         </div>
         
         {/* Search */}

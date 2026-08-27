@@ -34,7 +34,7 @@ export default function Auth() {
   const handleDemoLogin = async () => {
     setLoading(true);
     setError('');
-    const demoEmail = 'test@toyloop.in';
+    const demoEmail = 'test@khilofy.in';
     const demoPassword = 'testpassword123';
     
     let { error } = await supabase.auth.signInWithPassword({ email: demoEmail, password: demoPassword });
@@ -66,9 +66,12 @@ export default function Auth() {
           <span className="text-3xl">🧸</span>
         </div>
         
-        <h1 className="text-3xl font-display font-bold text-gray-900 mb-2">
-          {isLogin ? 'Welcome back!' : 'Join ToyLoop'}
+        <h1 className="text-4xl font-display font-black text-brand-500 mb-1 tracking-tight">
+          Khilofy
         </h1>
+        <h2 className="text-xl font-bold text-gray-900 mb-2">
+          {isLogin ? 'Welcome back!' : 'Rent. Play. Return.'}
+        </h2>
         <p className="text-gray-500 mb-8">
           {isLogin ? 'Sign in to access your rentals and earnings.' : 'Start renting, earning, and saving today.'}
         </p>
