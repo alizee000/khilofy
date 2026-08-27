@@ -84,7 +84,7 @@ export default function Home() {
         <div className="-mt-2">
           <div className="flex overflow-x-auto gap-2 pb-2 -mx-4 px-4 no-scrollbar">
             {[
-              { label: '🧲 Magnetic Tiles', search: 'Magna-Tiles' },
+              { label: '🧲 Magnetic Tiles', search: 'Magnetic' },
               { label: '🧱 LEGO / Construction', search: 'LEGO' },
               { label: '🚗 RC Cars', search: 'RC' },
               { label: '🤖 STEM + Robotics', search: 'Robot' },
