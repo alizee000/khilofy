@@ -33,6 +33,25 @@ export default function Checkout() {
       setTimeout(() => {
         setLoading(false);
         setIsSuccess(true);
+        
+        // Email Notification Logic via Formspree
+        const toyNames = checkoutToys.map(t => t.name).join(', ');
+        fetch('https://formspree.io/f/xrpgzdor', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Accept': 'application/json'
+          },
+          body: JSON.stringify({
+            subject: '🚀 New Khilofy Order (Guest)!',
+            toys: toyNames,
+            total: `₹${total}`,
+            paymentMethod: paymentMethod === 'cod' ? 'Cash on Delivery' : 'Online',
+            address: state.user?.location?.address || 'Bangalore',
+            customerEmail: user.email,
+          })
+        }).catch(err => console.error("Email notification failed", err));
+        
       }, 800);
       return;
     }
@@ -66,6 +85,25 @@ export default function Checkout() {
     setLoading(false);
     if (!error) {
       setIsSuccess(true);
+      
+      // Email Notification Logic via Formspree
+      const toyNames = checkoutToys.map(t => t.name).join(', ');
+      fetch('https://formspree.io/f/xrpgzdor', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Accept': 'application/json'
+        },
+        body: JSON.stringify({
+          subject: '🚀 New Khilofy Order!',
+          toys: toyNames,
+          total: `₹${total}`,
+          paymentMethod: paymentMethod === 'cod' ? 'Cash on Delivery' : 'Online',
+          address: state.user?.location?.address || 'Bangalore',
+          customerEmail: user.email,
+        })
+      }).catch(err => console.error("Email notification failed", err));
+      
       if (isCartCheckout) {
         // We'd ideally clear cart here, assuming we added dispatch to this file
         // For now, it resets on reload or we can just leave it as is
