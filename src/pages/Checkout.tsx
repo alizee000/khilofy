@@ -18,14 +18,37 @@ export default function Checkout() {
   const [loading, setLoading] = useState(false);
   const [paymentMethod, setPaymentMethod] = useState<'online' | 'cod'>('cod'); // Default to COD
 
+  const duration = 1;
+  const rentalFee = checkoutToys.reduce((sum, t) => sum + t.rentalRates.oneDay, 0);
+  const deposit = checkoutToys.reduce((sum, t) => sum + t.deposit, 0);
+  const deliveryFee = checkoutToys.length > 0 ? 99 : 0;
+  const total = rentalFee + deliveryFee + deposit;
+
   const handlePay = async () => {
     if (!user || checkoutToys.length === 0) return;
     setLoading(true);
     
-    // Insert all toys in checkout
+    // 1. Create the Order to track payment
+    const { data: orderData, error: orderError } = await supabase.from('orders').insert({
+      user_id: user.id,
+      payment_method: paymentMethod,
+      total_amount: total,
+      status: 'placed'
+    }).select();
+
+    if (orderError || !orderData || orderData.length === 0) {
+      setLoading(false);
+      alert('Failed to create order.');
+      return;
+    }
+
+    const orderId = orderData[0].id;
+    
+    // 2. Insert all toys into rentals linked to the new order
     const insertData = checkoutToys.map(t => ({
       toy_id: t.id,
       renter_id: user.id,
+      order_id: orderId,
       status: 'active'
     }));
 
@@ -74,12 +97,6 @@ export default function Checkout() {
       </div>
     );
   }
-
-  const duration = 1;
-  const rentalFee = checkoutToys.reduce((sum, t) => sum + t.rentalRates.oneDay, 0);
-  const deposit = checkoutToys.reduce((sum, t) => sum + t.deposit, 0);
-  const deliveryFee = checkoutToys.length > 0 ? 99 : 0;
-  const total = rentalFee + deliveryFee + deposit;
 
   return (
     <div className="w-full bg-gray-50 min-h-screen pb-safe">
