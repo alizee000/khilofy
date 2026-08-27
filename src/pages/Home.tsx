@@ -59,7 +59,17 @@ export default function Home() {
               What are we <span className="text-brand-500">playing</span> today?
             </h1>
           </div>
-          <img src={profile?.avatar_url || user.avatarUrl} alt="User" className="w-10 h-10 rounded-full border-2 border-brand-100 bg-gray-100" />
+          <div className="flex items-center gap-3">
+            <div onClick={() => navigate('/cart')} className="relative cursor-pointer p-2 bg-gray-100 rounded-full hover:bg-gray-200 transition-colors">
+              <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-gray-600"><circle cx="8" cy="21" r="1"/><circle cx="19" cy="21" r="1"/><path d="M2.05 2.05h2l2.66 12.42a2 2 0 0 0 2 1.58h9.78a2 2 0 0 0 1.95-1.57l1.65-7.43H5.12"/></svg>
+              {state.cart.length > 0 && (
+                <span className="absolute -top-1 -right-1 bg-brand-500 text-white text-[10px] font-bold w-4 h-4 rounded-full flex items-center justify-center">
+                  {state.cart.length}
+                </span>
+              )}
+            </div>
+            <img src={profile?.avatar_url || user.avatarUrl} alt="User" className="w-10 h-10 rounded-full border-2 border-brand-100 bg-gray-100 cursor-pointer" onClick={() => navigate('/profile')} />
+          </div>
         </div>
         
         {/* Search */}
