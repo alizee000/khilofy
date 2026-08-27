@@ -80,6 +80,35 @@ export default function Home() {
       {/* Main Content */}
       <div className="px-4 py-6 space-y-8">
         
+        {/* Trending Categories Chips */}
+        <div className="-mt-2">
+          <div className="flex overflow-x-auto gap-2 pb-2 -mx-4 px-4 no-scrollbar">
+            {[
+              { label: '🧲 Magnetic Tiles', search: 'Magna-Tiles' },
+              { label: '🧱 LEGO / Construction', search: 'LEGO' },
+              { label: '🚗 RC Cars', search: 'RC' },
+              { label: '🤖 STEM + Robotics', search: 'Robot' },
+              { label: '🎂 Birthday/Party', search: 'Party' }
+            ].map((cat) => (
+              <button
+                key={cat.label}
+                onClick={() => {
+                  dispatch({ type: 'SET_SEARCH', payload: cat.search });
+                  // Scroll down a bit to show results
+                  window.scrollTo({ top: 300, behavior: 'smooth' });
+                }}
+                className={`whitespace-nowrap px-4 py-2 rounded-full text-sm font-medium shadow-sm border transition-all ${
+                  searchQuery === cat.search 
+                    ? 'bg-brand-500 text-white border-brand-500' 
+                    : 'bg-white border-gray-200 text-gray-700 hover:border-brand-500 hover:text-brand-600'
+                }`}
+              >
+                {cat.label}
+              </button>
+            ))}
+          </div>
+        </div>
+
         {/* Visual Actions / Modes */}
         <div className="grid grid-cols-3 gap-3">
           <div 

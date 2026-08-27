@@ -1,13 +1,15 @@
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import { Share2, Heart, ShieldCheck, MapPin, Star, Sparkles, ChevronLeft } from 'lucide-react';
 import { TOYS, OWNERS } from '../data/seedData';
+import { useAppContext } from '../context/AppContext';
 
 export default function ToyDetail() {
   const { id } = useParams();
   const navigate = useNavigate();
+  const { state } = useAppContext();
   
-  // For MVP, just find the toy or default to first
-  const toy = TOYS.find(t => t.id === id) || TOYS[0];
+  // Find toy from global live state, fallback to mock if loading
+  const toy = state.toys.find(t => t.id === id) || state.toys[0] || TOYS[0];
   const owner = OWNERS[toy.ownerId] || OWNERS['o1'];
 
   return (
