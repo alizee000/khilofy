@@ -1,6 +1,7 @@
-import { useState } from 'react';
-import { useNavigate, useLocation } from 'react-router-dom';
+import { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { supabase } from '../lib/supabase';
+import { useAuth } from '../context/AuthContext';
 import { Sparkles, ChevronLeft } from 'lucide-react';
 
 export default function Auth() {
@@ -11,8 +12,14 @@ export default function Auth() {
   const [error, setError] = useState('');
   
   const navigate = useNavigate();
-  const location = useLocation();
-  const from = location.state?.from?.pathname || '/';
+  const { user } = useAuth();
+  const from = '/'; // Always navigate to home screen upon signin
+
+  useEffect(() => {
+    if (user) {
+      navigate(from, { replace: true });
+    }
+  }, [user, navigate, from]);
 
   const handleAuth = async (e: React.FormEvent) => {
     e.preventDefault();

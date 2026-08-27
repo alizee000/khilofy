@@ -15,8 +15,11 @@ export default function Profile() {
   const totalRented = 12 + activeRentals.length; // Baseline 12 + newly rented
   const myListings = toys.filter(t => t.ownerId === user.id);
 
-  const handleSignOut = () => {
-    supabase.auth.signOut();
+  const handleSignOut = async () => {
+    // Clear local guest mode flag if it exists
+    localStorage.removeItem('khilofy_guest');
+    await supabase.auth.signOut();
+    window.location.reload(); // Force full app reset to throw user back to Auth screen
   };
 
   return (

@@ -23,9 +23,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
+    const isGuest = localStorage.getItem('khilofy_guest') === 'true';
+
     // Get initial session
     const checkAuth = async () => {
-      if (localStorage.getItem('khilofy_guest') === 'true') {
+      if (isGuest) {
         const mockUser = { id: '00000000-0000-0000-0000-000000000000', email: 'guest@khilofy.in' } as User;
         setSession({ user: mockUser, access_token: 'mock', refresh_token: 'mock', expires_in: 9999, expires_at: 9999, token_type: 'bearer' });
         setUser(mockUser);
@@ -42,6 +44,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     };
     
     checkAuth();
+
+    if (isGuest) return; // Do not subscribe to real auth changes if in Guest Mode
 
     // Listen for auth changes
     const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
