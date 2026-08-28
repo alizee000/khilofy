@@ -49,11 +49,16 @@ export default function Checkout() {
   const total = rentalFee + deliveryFee + deposit + insuranceFee;
 
   const handlePay = async () => {
-    if (!user || checkoutToys.length === 0) return;
+    if (!user) {
+      alert("Please sign in to checkout.");
+      return;
+    }
+    if (checkoutToys.length === 0) return;
     setLoading(true);
 
     try {
       await checkoutMutation({
+        clerkId: user.id,
         toyIds: checkoutToys.map(t => t.id as any),
         paymentMethod: paymentMethod,
         totalAmount: total,

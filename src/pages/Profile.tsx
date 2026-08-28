@@ -10,7 +10,7 @@ export default function Profile() {
   const { state } = useAppContext();
   const { user, profile } = useAuth();
   const { activeRentals, toys } = state;
-  const myOrders = useQuery(api.orders.getMyOrders) || [];
+  const myOrders = useQuery(api.orders.getMyOrders, user ? { clerkId: user.id } : "skip") || [];
   
   if (!user) return null;
 

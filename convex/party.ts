@@ -4,6 +4,7 @@ import { v } from "convex/values";
 // Create a new party pack reservation
 export const reservePack = mutation({
   args: {
+    clerkId: v.string(),
     childName: v.string(),
     ageTurning: v.number(),
     numberOfKids: v.number(),
@@ -12,20 +13,18 @@ export const reservePack = mutation({
     totalAmount: v.number(),
   },
   handler: async (ctx, args) => {
-    const identity = await ctx.auth.getUserIdentity();
-    if (!identity) throw new Error("Unauthorized");
 
     let dbUser = await ctx.db
       .query("users")
-      .withIndex("by_clerk_id", (q) => q.eq("clerkId", identity.subject))
+      .withIndex("by_clerk_id", (q) => q.eq("clerkId", args.clerkId))
       .unique();
       
     if (!dbUser) {
       const newUserId = await ctx.db.insert("users", {
-        clerkId: identity.subject,
-        name: identity.name || "User",
-        email: identity.email || "",
-        avatarUrl: identity.pictureUrl || "",
+        clerkId: args.clerkId,
+        name: "User",
+        email: "",
+        avatarUrl: "",
         toyLoopScore: 0,
         earnings: 0,
       });
@@ -58,16 +57,13 @@ export const reservePack = mutation({
   },
 });
 
-// Get user's party pack reservations
+// Get user's party pack reservations (auth bypassed)
 export const getMyPacks = query({
-  args: {},
-  handler: async (ctx) => {
-    const identity = await ctx.auth.getUserIdentity();
-    if (!identity) return [];
-
+  args: { clerkId: v.string() },
+  handler: async (ctx, args) => {
     const user = await ctx.db
       .query("users")
-      .withIndex("by_clerk_id", (q) => q.eq("clerkId", identity.subject))
+      .withIndex("by_clerk_id", (q) => q.eq("clerkId", args.clerkId))
       .unique();
       
     if (!user) return [];

@@ -3,12 +3,14 @@ import { Gift, Users, IndianRupee, CheckCircle2 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { useMutation } from 'convex/react';
 import { api } from '../../convex/_generated/api';
+import { useAuth } from '../context/AuthContext';
 
 export default function Birthday() {
   const [step, setStep] = useState(1);
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
   const reservePack = useMutation(api.party.reservePack);
+  const { user } = useAuth();
   
   // Form State
   const [childName, setChildName] = useState('');
@@ -182,10 +184,15 @@ export default function Birthday() {
             )}
             <button 
               onClick={async () => {
+                if (!user) {
+                  setErrorMsg("Please sign in to reserve a pack.");
+                  return;
+                }
                 setLoading(true);
                 setErrorMsg('');
                 try {
-                  await reservePack({
+                  const reservationId = await reservePack({
+                    clerkId: user.id,
                     childName: childName || 'Ayaan',
                     ageTurning: parseInt(ageTurning) || 7,
                     numberOfKids: parseInt(numberOfKids) || 12,
@@ -198,6 +205,19 @@ export default function Birthday() {
                     ],
                     totalAmount: 2849
                   });
+                  
+                  // Send Email Notification via Formspree
+                  await fetch('https://formspree.io/f/xrpgzdor', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                      subject: `New Party Pack Reserved: ${childName}'s ${theme} Party`,
+                      email: user.primaryEmailAddress?.emailAddress || 'customer@toyit.in',
+                      message: `A new Party Pack was reserved for ₹2849. Kids: ${numberOfKids}, Age: ${ageTurning}. Items: Giant LEGO Space Station, STEM Robot Kit, RC Cars × 2, Giant Jenga & Board Games`,
+                      reservationId: reservationId,
+                    })
+                  }).catch(e => console.error("Email failed to send", e));
+
                   setStep(4);
                 } catch (e: any) {
                   console.error(e);

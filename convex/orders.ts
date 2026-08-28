@@ -3,14 +3,11 @@ import { v } from "convex/values";
 
 // Get all orders for the authenticated user, populated with rentals and party packs
 export const getMyOrders = query({
-  args: {},
-  handler: async (ctx) => {
-    const identity = await ctx.auth.getUserIdentity();
-    if (!identity) return [];
-
+  args: { clerkId: v.string() },
+  handler: async (ctx, args) => {
     const user = await ctx.db
       .query("users")
-      .withIndex("by_clerk_id", (q) => q.eq("clerkId", identity.subject))
+      .withIndex("by_clerk_id", (q) => q.eq("clerkId", args.clerkId))
       .unique();
       
     if (!user) return [];

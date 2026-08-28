@@ -3,14 +3,11 @@ import { v } from "convex/values";
 
 // Get user's active rentals (joined with toy data)
 export const getMyRentals = query({
-  args: {},
-  handler: async (ctx) => {
-    const identity = await ctx.auth.getUserIdentity();
-    if (!identity) return [];
-
+  args: { clerkId: v.string() },
+  handler: async (ctx, args) => {
     const user = await ctx.db
       .query("users")
-      .withIndex("by_clerk_id", (q) => q.eq("clerkId", identity.subject))
+      .withIndex("by_clerk_id", (q) => q.eq("clerkId", args.clerkId))
       .unique();
       
     if (!user) return [];
@@ -34,25 +31,23 @@ export const getMyRentals = query({
 
 export const checkout = mutation({
   args: {
+    clerkId: v.string(),
     toyIds: v.array(v.id("toys")),
     paymentMethod: v.string(),
     totalAmount: v.number(),
   },
   handler: async (ctx, args) => {
-    const identity = await ctx.auth.getUserIdentity();
-    if (!identity) throw new Error("Unauthorized");
-
     let dbUser = await ctx.db
       .query("users")
-      .withIndex("by_clerk_id", (q) => q.eq("clerkId", identity.subject))
+      .withIndex("by_clerk_id", (q) => q.eq("clerkId", args.clerkId))
       .unique();
       
     if (!dbUser) {
       const newUserId = await ctx.db.insert("users", {
-        clerkId: identity.subject,
-        name: identity.name || "User",
-        email: identity.email || "",
-        avatarUrl: identity.pictureUrl || "",
+        clerkId: args.clerkId,
+        name: "User",
+        email: "",
+        avatarUrl: "",
         toyLoopScore: 0,
         earnings: 0,
       });

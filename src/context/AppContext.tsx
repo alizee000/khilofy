@@ -104,10 +104,10 @@ import { api } from '../../convex/_generated/api';
 
 export function AppProvider({ children }: { children: ReactNode }) {
   const [state, dispatch] = useReducer(appReducer, initialState);
-  const { session } = useAuth(); // session is now a boolean from Clerk
+  const { session, user } = useAuth(); // session is now a boolean from Clerk
 
   const convexToys = useQuery(api.toys.list);
-  const convexRentals = useQuery(api.rentals.getMyRentals);
+  const convexRentals = useQuery(api.rentals.getMyRentals, user ? { clerkId: user.id } : "skip");
 
   useEffect(() => {
     if (convexToys) {
