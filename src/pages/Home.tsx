@@ -11,6 +11,8 @@ export default function Home() {
   const { profile } = useAuth();
   const { toys, user, searchQuery } = state;
   
+  const displayName = user?.primaryEmailAddress?.emailAddress?.substring(0, 3) || user?.firstName || 'User';
+  
   const [locationName, setLocationName] = useState('Finding location...');
   const [isPlaying, setIsPlaying] = useState(false);
   const audioRef = useRef<HTMLAudioElement | null>(null);
@@ -58,7 +60,7 @@ export default function Home() {
               <Navigation size={14} className="text-brand-500" /> {locationName}
             </h2>
             <h1 className="text-2xl font-display font-bold text-gray-900 mt-1">
-              What are we <span className="text-brand-500">playing</span> today?
+              Welcome, <span className="text-brand-500">{displayName}</span> 👋
             </h1>
           </div>
           <div className="flex items-center gap-3">

@@ -15,19 +15,22 @@ export default function Auth() {
   }, [isSignedIn, navigate]);
 
   return (
-    <div className="w-full bg-gray-50 min-h-screen flex flex-col relative">
-      <div className="absolute top-0 w-full h-64 z-0">
+    <div className="w-full bg-gray-50 min-h-screen flex flex-col relative overflow-hidden">
+      {/* Background Image - Taller on desktop, proper fade on mobile */}
+      <div className="absolute top-0 w-full h-72 md:h-96 z-0">
         <img src="/auth-banner.jpg" alt="Khelo N Dedo Flow" className="w-full h-full object-cover object-top" />
-        <div className="absolute inset-0 bg-gradient-to-t from-gray-50 via-gray-50/80 to-transparent"></div>
+        <div className="absolute inset-0 bg-gradient-to-t from-gray-50 via-gray-50/70 to-transparent"></div>
       </div>
 
-      <div className="px-4 py-4 flex items-center gap-4 sticky top-0 z-10">
-        <button onClick={() => navigate(-1)} className="p-1 text-gray-700 bg-white/80 rounded-full backdrop-blur-md shadow-sm border border-gray-200">
+      {/* Back Button */}
+      <div className="px-4 py-4 flex items-center gap-4 absolute top-0 z-20 w-full">
+        <button onClick={() => navigate(-1)} className="p-2 text-gray-900 bg-white/90 rounded-full backdrop-blur-md shadow-sm border border-gray-100 hover:bg-gray-100 transition-colors">
           <ChevronLeft size={24} />
         </button>
       </div>
       
-      <div className="flex-1 flex flex-col items-center justify-center px-6 pb-12 pt-12 relative z-10">
+      {/* Scrollable Container for Auth Form */}
+      <div className="flex-1 flex flex-col items-center justify-start md:justify-center px-4 pb-12 pt-28 md:pt-20 relative z-10 overflow-y-auto w-full">
         <div className="w-full max-w-md flex justify-center mb-6">
           {isLogin ? (
             <div className="w-full flex flex-col items-center">

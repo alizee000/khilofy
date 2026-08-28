@@ -38,6 +38,8 @@ export default function Profile() {
     window.location.reload(); // Force full app reset to throw user back to Auth screen
   };
 
+  const displayName = user?.primaryEmailAddress?.emailAddress?.substring(0, 3) || user?.firstName || 'User';
+
   return (
     <div className="w-full bg-gray-50 min-h-screen pb-6">
       {/* Header Profile Section */}
@@ -50,9 +52,9 @@ export default function Profile() {
         </div>
         
         <div className="flex items-center gap-4 mb-6">
-          <img src={safeProfile.avatarUrl || `https://api.dicebear.com/7.x/notionists/svg?seed=${user.primaryEmailAddress?.emailAddress}`} alt={safeProfile.name} className="w-20 h-20 rounded-full border-4 border-brand-50 shadow-sm bg-gray-100" />
+          <img src={safeProfile.avatarUrl || `https://api.dicebear.com/7.x/notionists/svg?seed=${user.primaryEmailAddress?.emailAddress}`} alt={displayName} className="w-20 h-20 rounded-full border-4 border-brand-50 shadow-sm bg-gray-100" />
           <div>
-            <h1 className="text-2xl font-bold text-gray-900">{safeProfile.name || user.firstName}</h1>
+            <h1 className="text-2xl font-bold text-gray-900">{displayName}</h1>
             <div className="flex items-center gap-1 text-sm font-medium text-brand-600 bg-brand-50 px-2 py-0.5 rounded-full mt-1 w-fit">
               <Award size={14} /> Score: {safeProfile.toyLoopScore || 0}
             </div>
