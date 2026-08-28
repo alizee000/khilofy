@@ -3,11 +3,14 @@ import { useAppContext } from '../context/AppContext';
 import { useAuth } from '../context/AuthContext';
 import { useClerk } from '@clerk/react';
 import ToyCard from '../components/ToyCard';
+import { useQuery } from 'convex/react';
+import { api } from '../../convex/_generated/api';
 
 export default function Profile() {
   const { state } = useAppContext();
   const { user, profile } = useAuth();
   const { activeRentals, toys } = state;
+  const myPacks = useQuery(api.party.getMyPacks) || [];
   
   if (!user) return null;
 
@@ -86,7 +89,45 @@ export default function Profile() {
             <h3 className="text-lg font-bold text-gray-900 mb-3">Your Active Rentals</h3>
             <div className="flex flex-col gap-4">
               {activeRentals.map(toy => (
-                <ToyCard key={`rental-${toy.id}`} toy={toy} />
+                <div key={`rental-${toy.id}`} className="relative">
+                  <ToyCard toy={toy} />
+                  <div className="absolute top-2 right-2 bg-blue-100 text-blue-800 text-xs font-bold px-2 py-1 rounded-md z-10 shadow-sm border border-blue-200">
+                    Status: {toy.status || 'Active'}
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+        
+        {/* Reserved Packs Hook */}
+        {myPacks.length > 0 && (
+          <div>
+            <h3 className="text-lg font-bold text-gray-900 mb-3 flex items-center gap-2">
+              <Gift size={18} className="text-blue-500" /> Your Party Packs
+            </h3>
+            <div className="flex flex-col gap-4">
+              {myPacks.map(pack => (
+                <div key={pack._id} className="bg-white rounded-2xl p-4 shadow-sm border border-gray-100">
+                  <div className="flex justify-between items-start mb-2">
+                    <h4 className="font-bold text-gray-900">{pack.childName}'s {pack.theme} Party</h4>
+                    <span className="bg-blue-100 text-blue-800 text-xs font-bold px-2 py-1 rounded-md border border-blue-200 uppercase tracking-wider">
+                      {pack.status}
+                    </span>
+                  </div>
+                  <p className="text-xs text-gray-500 mb-3">Turning {pack.ageTurning} • {pack.numberOfKids} Kids</p>
+                  <div className="flex flex-wrap gap-2 mb-3">
+                    {pack.items.map((item: string, i: number) => (
+                      <span key={i} className="text-[10px] font-medium bg-gray-50 border border-gray-200 text-gray-600 px-2 py-1 rounded-full">
+                        {item}
+                      </span>
+                    ))}
+                  </div>
+                  <div className="flex justify-between items-center pt-3 border-t border-dashed border-gray-100">
+                    <span className="text-xs font-medium text-gray-500">Total Amount</span>
+                    <span className="font-bold text-blue-600">₹{pack.totalAmount}</span>
+                  </div>
+                </div>
               ))}
             </div>
           </div>

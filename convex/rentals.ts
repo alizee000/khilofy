@@ -17,7 +17,6 @@ export const getMyRentals = query({
     const rentals = await ctx.db
       .query("rentals")
       .withIndex("by_renter", (q) => q.eq("renterId", user._id))
-      .filter((q) => q.eq(q.field("status"), "active"))
       .collect();
 
     // Join with toys

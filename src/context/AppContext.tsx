@@ -122,7 +122,10 @@ export function AppProvider({ children }: { children: ReactNode }) {
     }
     if (convexRentals) {
       // convexRentals returns an array of { ..., toy: {...} }
-      const rentedToys = convexRentals.map((r: any) => mapConvexToy(r.toy));
+      const rentedToys = convexRentals.map((r: any) => ({
+        ...mapConvexToy(r.toy),
+        status: r.status // Pass rental status to UI
+      }));
       dispatch({ type: 'SET_RENTALS', payload: rentedToys });
     }
   }, [convexRentals, session]);

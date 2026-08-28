@@ -38,7 +38,18 @@ export default defineSchema({
     toyId: v.id("toys"),
     renterId: v.id("users"),
     orderId: v.optional(v.id("orders")),
-    status: v.string(),
+    status: v.string(), // e.g. "active", "delivered", "returned"
   }).index("by_renter", ["renterId"])
     .index("by_toy", ["toyId"]),
+
+  party_reservations: defineTable({
+    userId: v.id("users"),
+    childName: v.string(),
+    ageTurning: v.number(),
+    numberOfKids: v.number(),
+    theme: v.string(),
+    items: v.array(v.string()),
+    totalAmount: v.number(),
+    status: v.string(), // "reserved", "delivered", "returned"
+  }).index("by_user", ["userId"]),
 });
