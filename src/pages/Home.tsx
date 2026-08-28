@@ -99,6 +99,7 @@ export default function Home() {
               { label: '🧲 Magnetic Tiles', search: 'Magnetic' },
               { label: '🧱 LEGO / Construction', search: 'LEGO' },
               { label: '🐶 Pet Toys (Dogs)', search: 'Dog' },
+              { label: '🏆 Top Picks for Pets', search: 'Dog' },
               { label: '🚗 RC Cars', search: 'RC' },
               { label: '🤖 STEM + Robotics', search: 'Robot' },
               { label: '🎂 Birthday/Party', search: 'Party' }
