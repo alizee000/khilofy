@@ -8,23 +8,11 @@ export const getMyRentals = query({
     const identity = await ctx.auth.getUserIdentity();
     if (!identity) return [];
 
-    let user = await ctx.db
+    const user = await ctx.db
       .query("users")
       .withIndex("by_clerk_id", (q) => q.eq("clerkId", identity.subject))
       .unique();
       
-    if (!user) {
-      const newUserId = await ctx.db.insert("users", {
-        clerkId: identity.subject,
-        name: identity.name || "User",
-        email: identity.email || "",
-        avatarUrl: identity.pictureUrl || "",
-        toyLoopScore: 0,
-        earnings: 0,
-      });
-      user = await ctx.db.get(newUserId);
-    }
-    
     if (!user) return [];
 
     const rentals = await ctx.db
@@ -54,12 +42,12 @@ export const checkout = mutation({
     const identity = await ctx.auth.getUserIdentity();
     if (!identity) throw new Error("Unauthorized");
 
-    let user = await ctx.db
+    let dbUser = await ctx.db
       .query("users")
       .withIndex("by_clerk_id", (q) => q.eq("clerkId", identity.subject))
       .unique();
       
-    if (!user) {
+    if (!dbUser) {
       const newUserId = await ctx.db.insert("users", {
         clerkId: identity.subject,
         name: identity.name || "User",
@@ -68,14 +56,14 @@ export const checkout = mutation({
         toyLoopScore: 0,
         earnings: 0,
       });
-      user = await ctx.db.get(newUserId);
+      const insertedUser = await ctx.db.get(newUserId);
+      if (!insertedUser) throw new Error("Failed to create user");
+      dbUser = insertedUser;
     }
-    
-    if (!user) throw new Error("User not found");
 
     // Create Order
     const orderId = await ctx.db.insert("orders", {
-      userId: user._id,
+      userId: dbUser._id,
       paymentMethod: args.paymentMethod,
       totalAmount: args.totalAmount,
       status: "placed",
@@ -85,7 +73,7 @@ export const checkout = mutation({
     for (const toyId of args.toyIds) {
       await ctx.db.insert("rentals", {
         toyId,
-        renterId: user._id,
+        renterId: dbUser._id,
         orderId,
         status: "active",
       });

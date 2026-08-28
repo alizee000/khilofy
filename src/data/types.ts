@@ -42,6 +42,7 @@ export interface Toy {
   reviewsCount: number;
   recentRentalsCount: number; // for trending score
   targetGender?: 'Boy' | 'Girl' | 'Unisex';
+  status?: string; // e.g. "active", "delivered", "returned" for rentals
   createdAt: string;
   selectedDuration?: 1 | 3 | 7 | 30; // attached when adding to cart
 }
