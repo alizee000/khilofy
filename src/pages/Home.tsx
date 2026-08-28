@@ -91,6 +91,31 @@ export default function Home() {
         </div>
       </div>
 
+      {/* Animated Hero Banner */}
+      <div className="relative overflow-hidden bg-gradient-to-br from-brand-100 via-purple-100 to-blue-50 rounded-3xl p-6 shadow-sm border border-white mx-4 mt-4">
+        <div className="relative z-10">
+          <h2 className="text-2xl font-display font-extrabold text-gray-900 mb-2 leading-tight drop-shadow-sm">
+            Unbox Joy <br/><span className="text-brand-600">Every Weekend!</span>
+          </h2>
+          <p className="text-xs text-gray-700 max-w-[65%] font-semibold">Rent premium toys. Zero clutter. Free delivery in {locationName}.</p>
+          <button onClick={() => {
+             window.scrollTo({ top: 400, behavior: 'smooth' });
+          }} className="mt-4 bg-gray-900 text-white text-xs font-bold px-5 py-2.5 rounded-full shadow-lg hover:bg-gray-800 transition-colors flex items-center gap-2">
+            Explore Toys <Sparkles size={14} className="text-yellow-400" />
+          </button>
+        </div>
+        
+        {/* Animated Floating Emojis */}
+        <div className="absolute right-4 top-2 text-4xl animate-float drop-shadow-xl" style={{ filter: 'drop-shadow(0 10px 8px rgba(0,0,0,0.15))'}}>🏎️</div>
+        <div className="absolute right-20 bottom-0 text-[3.5rem] animate-float-delayed drop-shadow-xl" style={{ filter: 'drop-shadow(0 10px 8px rgba(0,0,0,0.15))'}}>🧸</div>
+        <div className="absolute right-0 top-20 text-3xl animate-bounce-slow drop-shadow-xl" style={{ filter: 'drop-shadow(0 10px 8px rgba(0,0,0,0.15))'}}>🚀</div>
+        
+        {/* Sparkles */}
+        <div className="absolute left-[45%] top-6 text-brand-400 animate-pulse">✨</div>
+        <div className="absolute right-[40%] top-10 text-yellow-500 animate-ping" style={{ animationDuration: '3s'}}>✨</div>
+        <div className="absolute right-10 bottom-6 text-blue-400 animate-pulse" style={{ animationDuration: '2s'}}>✨</div>
+      </div>
+
       {/* Main Content */}
       <div className="px-4 py-6 space-y-8">
         
