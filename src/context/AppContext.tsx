@@ -73,7 +73,7 @@ function appReducer(state: AppState, action: Action): AppState {
 }
 
 // Helper to map Convex docs to camelCase Toy objects
-const mapConvexToy = (row: any): Toy => ({
+export const mapConvexToy = (row: any): Toy => ({
   id: row._id,
   name: row.name,
   description: row.description || '',

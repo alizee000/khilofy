@@ -1,5 +1,5 @@
 import { Settings, Shield, Award, Share2, Gift, LogOut } from 'lucide-react';
-import { useAppContext } from '../context/AppContext';
+import { useAppContext, mapConvexToy } from '../context/AppContext';
 import { useAuth } from '../context/AuthContext';
 import { useClerk } from '@clerk/react';
 import ToyCard from '../components/ToyCard';
@@ -130,7 +130,7 @@ export default function Profile() {
                         <p className="text-xs font-bold text-gray-500 uppercase tracking-wider">Rented Toys</p>
                         {order.rentals.map((rental: any) => (
                           <div key={rental._id} className="relative">
-                            <ToyCard toy={{...rental.toy, status: rental.status}} />
+                            <ToyCard toy={{...mapConvexToy(rental.toy), status: rental.status}} />
                             <div className="absolute top-2 right-2 bg-white text-brand-600 text-xs font-bold px-2 py-1 rounded shadow-sm border border-brand-100">
                               {rental.status || 'Active'}
                             </div>
