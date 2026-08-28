@@ -8,10 +8,10 @@ import { useAuth } from '../context/AuthContext';
 export default function Home() {
   const navigate = useNavigate();
   const { state, dispatch } = useAppContext();
-  const { profile } = useAuth();
-  const { toys, user, searchQuery } = state;
+  const { profile, user: clerkUser } = useAuth();
+  const { toys, searchQuery } = state;
   
-  const displayName = user?.primaryEmailAddress?.emailAddress?.substring(0, 3) || user?.firstName || 'User';
+  const displayName = clerkUser?.primaryEmailAddress?.emailAddress?.substring(0, 3) || clerkUser?.firstName || 'User';
   
   const [locationName, setLocationName] = useState('Finding location...');
   const [isPlaying, setIsPlaying] = useState(false);
@@ -72,7 +72,7 @@ export default function Home() {
                 </span>
               )}
             </div>
-            <img src={profile?.avatar_url || user.avatarUrl} alt="User" className="w-10 h-10 rounded-full border-2 border-brand-100 bg-gray-100 cursor-pointer" onClick={() => navigate('/profile')} />
+            <img src={`https://api.dicebear.com/7.x/bottts/svg?seed=${clerkUser?.primaryEmailAddress?.emailAddress}`} alt="User" className="w-10 h-10 rounded-full border-2 border-brand-100 bg-gray-100 cursor-pointer" onClick={() => navigate('/profile')} />
           </div>
         </div>
         
