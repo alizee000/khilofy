@@ -16,6 +16,7 @@ export default function Birthday() {
   const [numberOfKids, setNumberOfKids] = useState('');
   const [budget, setBudget] = useState('');
   const [theme, setTheme] = useState('Space');
+  const [errorMsg, setErrorMsg] = useState('');
   
   const generateBundle = () => {
     setLoading(true);
@@ -174,9 +175,15 @@ export default function Birthday() {
               </div>
             </div>
 
+            {errorMsg && (
+              <div className="mb-4 p-3 bg-red-50 border border-red-200 text-red-700 text-sm font-medium rounded-xl text-center">
+                {errorMsg}
+              </div>
+            )}
             <button 
               onClick={async () => {
                 setLoading(true);
+                setErrorMsg('');
                 try {
                   await reservePack({
                     childName: childName || 'Ayaan',
@@ -192,9 +199,14 @@ export default function Birthday() {
                     totalAmount: 2849
                   });
                   setStep(4);
-                } catch (e) {
+                } catch (e: any) {
                   console.error(e);
-                  alert("Failed to reserve pack. Please sign in.");
+                  const msg = e?.message || '';
+                  if (msg.includes('auth provider') || msg.includes('Unauthorized')) {
+                    setErrorMsg("Authentication error. Please sign out and sign back in, or check your Clerk JWT template configuration.");
+                  } else {
+                    setErrorMsg("Failed to reserve pack. Please try again.");
+                  }
                 } finally {
                   setLoading(false);
                 }
