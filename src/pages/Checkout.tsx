@@ -48,66 +48,19 @@ export default function Checkout() {
   const handlePay = async () => {
     if (!user || checkoutToys.length === 0) return;
     setLoading(true);
-    
-    // Check if in Guest Mode
-    if (user.id === '00000000-0000-0000-0000-000000000000') {
-      setTimeout(() => {
-        setLoading(false);
-        setIsSuccess(true);
-        
-        // Email Notification Logic via Formspree
-        const toyNames = checkoutToys.map(t => t.name).join(', ');
-        fetch('https://formspree.io/f/xrpgzdor', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            'Accept': 'application/json'
-          },
-          body: JSON.stringify({
-            subject: '🚀 New Khelo N Dedo Order (Guest)!',
-            toys: toyNames,
-            total: `₹${total}`,
-            paymentMethod: paymentMethod === 'cod' ? 'Cash on Delivery' : 'Online',
-            address: fullAddress,
-            customerEmail: user.email,
-            oopsieInsurance: hasInsurance ? 'Yes (+₹49)' : 'No',
-          })
-        }).catch(err => console.error("Email notification failed", err));
-        
-      }, 800);
-      return;
-    }
 
-    // 1. Create the Order to track payment
-    const { data: orderData, error: orderError } = await supabase.from('orders').insert({
-      user_id: user.id,
-      payment_method: paymentMethod,
-      total_amount: total,
-      status: 'placed'
-    }).select();
+    try {
+      await checkoutMutation({
+        toyIds: checkoutToys.map(t => t.id as any),
+        paymentMethod: paymentMethod,
+        totalAmount: total,
+      });
 
-    if (orderError || !orderData || orderData.length === 0) {
-      setLoading(false);
-      alert('Failed to create order.');
-      return;
-    }
-
-    const orderId = orderData[0].id;
-    
-    // 2. Insert all toys into rentals linked to the new order
-    const insertData = checkoutToys.map(t => ({
-      toy_id: t.id,
-      renter_id: user.id,
-      order_id: orderId,
-      status: 'active'
-    }));
-
-    const { error } = await supabase.from('rentals').insert(insertData);
-
-    setLoading(false);
-    if (!error) {
       setIsSuccess(true);
-      
+      if (isCartCheckout) {
+        dispatch({ type: 'CLEAR_CART' });
+      }
+
       // Email Notification Logic via Formspree
       const toyNames = checkoutToys.map(t => t.name).join(', ');
       fetch('https://formspree.io/f/xrpgzdor', {
@@ -122,18 +75,16 @@ export default function Checkout() {
           total: `₹${total}`,
           paymentMethod: paymentMethod === 'cod' ? 'Cash on Delivery' : 'Online',
           address: fullAddress,
-          customerEmail: user.email,
+          customerEmail: user.primaryEmailAddress?.emailAddress || "Guest",
           oopsieInsurance: hasInsurance ? 'Yes (+₹49)' : 'No',
         })
       }).catch(err => console.error("Email notification failed", err));
-      
-      if (isCartCheckout) {
-        // We'd ideally clear cart here, assuming we added dispatch to this file
-        // For now, it resets on reload or we can just leave it as is
-      }
-    } else {
+
+    } catch (error) {
       console.error(error);
       alert('Checkout failed!');
+    } finally {
+      setLoading(false);
     }
   };
 

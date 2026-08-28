@@ -72,66 +72,60 @@ function appReducer(state: AppState, action: Action): AppState {
   }
 }
 
-// Helper to map snake_case Supabase rows to camelCase Toy objects
-const mapSupabaseToy = (row: any): Toy => ({
-  id: row.id,
+// Helper to map Convex docs to camelCase Toy objects
+const mapConvexToy = (row: any): Toy => ({
+  id: row._id,
   name: row.name,
   description: row.description || '',
   category: row.category,
   images: row.images || ['https://images.unsplash.com/photo-1596461404969-9ae70f2830c1?auto=format&fit=crop&w=800&q=80'],
-  ownerId: row.owner_id,
-  ageRange: row.age_range || '3-5',
+  ownerId: row.ownerId,
+  ageRange: row.ageRange || '3-5',
   condition: row.condition || 'Good',
-  isCleanedAndChecked: row.is_cleaned,
+  isCleanedAndChecked: row.isCleaned,
   rentalRates: {
-    oneDay: row.one_day_rate,
-    threeDays: Math.floor(row.one_day_rate * 2.5),
-    sevenDays: Math.floor(row.one_day_rate * 5),
-    thirtyDays: Math.floor(row.one_day_rate * 15),
+    oneDay: row.oneDayRate,
+    threeDays: Math.floor(row.oneDayRate * 2.5),
+    sevenDays: Math.floor(row.oneDayRate * 5),
+    thirtyDays: Math.floor(row.oneDayRate * 15),
   },
   deposit: row.deposit,
   location: { address: 'Bangalore', lat: 12.9, lng: 77.5, deliveryMinutes: 30 },
-  isAvailableToday: row.is_available,
+  isAvailableToday: row.isAvailable,
   rating: 5.0,
   reviewsCount: 0,
   recentRentalsCount: 0,
-  targetGender: row.target_gender || 'Unisex',
-  createdAt: row.created_at,
+  targetGender: row.targetGender || 'Unisex',
+  createdAt: row._creationTime,
 });
+
+import { useQuery } from 'convex/react';
+import { api } from '../../convex/_generated/api';
 
 export function AppProvider({ children }: { children: ReactNode }) {
   const [state, dispatch] = useReducer(appReducer, initialState);
-  const { user } = useAuth();
+  const { session } = useAuth(); // session is now a boolean from Clerk
+
+  const convexToys = useQuery(api.toys.list);
+  const convexRentals = useQuery(api.rentals.getMyRentals);
 
   useEffect(() => {
-    // Fetch global toys
-    const fetchToys = async () => {
-      const { data, error } = await supabase.from('toys').select('*').order('created_at', { ascending: false });
-      if (data && !error && data.length > 0) {
-        dispatch({ type: 'SET_TOYS', payload: data.map(mapSupabaseToy) });
-      }
-    };
-
-    fetchToys();
-  }, []);
+    if (convexToys) {
+      dispatch({ type: 'SET_TOYS', payload: convexToys.map(mapConvexToy) });
+    }
+  }, [convexToys]);
 
   useEffect(() => {
-    // Fetch user rentals if logged in
-    const fetchRentals = async () => {
-      if (!user) return;
-      const { data, error } = await supabase
-        .from('rentals')
-        .select('*, toys(*)')
-        .eq('renter_id', user.id);
-      
-      if (data && !error) {
-        const rentedToys = data.map((r: any) => mapSupabaseToy(r.toys));
-        dispatch({ type: 'SET_RENTALS', payload: rentedToys });
-      }
-    };
-    
-    fetchRentals();
-  }, [user]);
+    if (!session) {
+      dispatch({ type: 'SET_RENTALS', payload: [] });
+      return;
+    }
+    if (convexRentals) {
+      // convexRentals returns an array of { ..., toy: {...} }
+      const rentedToys = convexRentals.map((r: any) => mapConvexToy(r.toy));
+      dispatch({ type: 'SET_RENTALS', payload: rentedToys });
+    }
+  }, [convexRentals, session]);
 
   return (
     <AppContext.Provider value={{ state, dispatch }}>

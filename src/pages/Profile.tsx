@@ -1,7 +1,7 @@
 import { Settings, Shield, Award, Share2, Gift, LogOut } from 'lucide-react';
 import { useAppContext } from '../context/AppContext';
 import { useAuth } from '../context/AuthContext';
-import { supabase } from '../lib/supabase';
+import { useClerk } from '@clerk/react';
 import ToyCard from '../components/ToyCard';
 
 export default function Profile() {
@@ -9,16 +9,32 @@ export default function Profile() {
   const { user, profile } = useAuth();
   const { activeRentals, toys } = state;
   
-  if (!user || !profile) return null;
+  if (!user) return null;
 
-  // Calculate dynamic stats
-  const totalRented = 12 + activeRentals.length; // Baseline 12 + newly rented
+  // Safe defaults if Convex profile hasn't synced yet
+  const safeProfile = profile || {
+    name: user.fullName || user.firstName,
+    avatarUrl: user.imageUrl,
+    toyLoopScore: 0,
+    earnings: 0,
+  };
+
+  // Calculate dynamic stats based purely on user data
+  const totalRented = activeRentals.length; 
   const myListings = toys.filter(t => t.ownerId === user.id);
+  
+  // Calculate savings mathematically based on toys rented (deposit roughly equals retail price)
+  const savings = activeRentals.reduce((sum, toy) => sum + (toy.deposit - toy.rentalRates.sevenDays), 0);
+  const formattedSavings = savings >= 1000 ? (savings / 1000).toFixed(1) + 'k' : savings;
+  
+  const wasteAvoided = activeRentals.length * 2; // Rough estimate: 2kg of plastic per toy avoided
+
+  const { signOut } = useClerk();
 
   const handleSignOut = async () => {
     // Clear local guest mode flag if it exists
     localStorage.removeItem('khelondedo_guest');
-    await supabase.auth.signOut();
+    await signOut();
     window.location.reload(); // Force full app reset to throw user back to Auth screen
   };
 
@@ -34,11 +50,11 @@ export default function Profile() {
         </div>
         
         <div className="flex items-center gap-4 mb-6">
-          <img src={profile.avatar_url || `https://api.dicebear.com/7.x/notionists/svg?seed=${user.email}`} alt={profile.name} className="w-20 h-20 rounded-full border-4 border-brand-50 shadow-sm bg-gray-100" />
+          <img src={safeProfile.avatarUrl || `https://api.dicebear.com/7.x/notionists/svg?seed=${user.primaryEmailAddress?.emailAddress}`} alt={safeProfile.name} className="w-20 h-20 rounded-full border-4 border-brand-50 shadow-sm bg-gray-100" />
           <div>
-            <h1 className="text-2xl font-bold text-gray-900">{profile.name || user.email?.split('@')[0]}</h1>
+            <h1 className="text-2xl font-bold text-gray-900">{safeProfile.name || user.firstName}</h1>
             <div className="flex items-center gap-1 text-sm font-medium text-brand-600 bg-brand-50 px-2 py-0.5 rounded-full mt-1 w-fit">
-              <Award size={14} /> Score: {profile.toy_loop_score || 0}
+              <Award size={14} /> Score: {safeProfile.toyLoopScore || 0}
             </div>
           </div>
         </div>
@@ -50,11 +66,11 @@ export default function Profile() {
             <div className="text-xs text-gray-500 font-medium">Toys Rented</div>
           </div>
           <div className="border-x border-gray-100">
-            <div className="text-xl font-bold text-trust-600">₹{3.8 + (activeRentals.length * 1.2)}k</div>
+            <div className="text-xl font-bold text-trust-600">₹{formattedSavings}</div>
             <div className="text-xs text-gray-500 font-medium">Saved vs Buying</div>
           </div>
           <div>
-            <div className="text-xl font-bold text-green-600">{23 + (activeRentals.length * 2)}kg</div>
+            <div className="text-xl font-bold text-green-600">{wasteAvoided}kg</div>
             <div className="text-xs text-gray-500 font-medium">Waste Avoided</div>
           </div>
         </div>
@@ -81,7 +97,7 @@ export default function Profile() {
           </div>
           <h2 className="text-sm font-semibold uppercase tracking-wide text-trust-100 mb-1">Owner Dashboard</h2>
           <div className="flex items-end gap-2 mb-4">
-            <span className="text-3xl font-bold">₹{(profile.earnings || 0).toLocaleString('en-IN')}</span>
+            <span className="text-3xl font-bold">₹{(safeProfile.earnings || 0).toLocaleString('en-IN')}</span>
             <span className="text-trust-100 text-sm font-medium pb-1">earned this month</span>
           </div>
           <p className="text-sm text-trust-50 mb-4 max-w-[80%]">Your toys earned money while you were doing nothing.</p>
