@@ -133,5 +133,37 @@ export const TOYS: Toy[] = [
     reviewsCount: 22,
     recentRentalsCount: 25,
     createdAt: '2023-11-10T00:00:00Z',
+  },
+  {
+    id: 't-dog-1',
+    name: 'Interactive Puzzle Feeder for Dogs',
+    description: 'Keep your furry friend mentally stimulated with this interactive puzzle toy. Hide treats inside and watch them solve the puzzle! Perfect for rainy days or when you need to keep them busy.',
+    category: 'Dog',
+    images: [
+      'https://images.unsplash.com/photo-1583337130417-3346a1be7dee?auto=format&fit=crop&w=800&q=80'
+    ],
+    ownerId: 'o1',
+    ageRange: 'All Ages',
+    condition: 'Excellent',
+    isCleanedAndChecked: true,
+    rentalRates: {
+      oneDay: 49,
+      threeDays: 99,
+      sevenDays: 199,
+      thirtyDays: 499,
+    },
+    deposit: 500,
+    location: {
+      address: 'Koramangala',
+      lat: 12.9279,
+      lng: 77.6271,
+      distanceKm: 0.5,
+      deliveryMinutes: 15,
+    },
+    isAvailableToday: true,
+    rating: 4.8,
+    reviewsCount: 15,
+    recentRentalsCount: 30,
+    createdAt: '2023-11-15T00:00:00Z',
   }
 ];
