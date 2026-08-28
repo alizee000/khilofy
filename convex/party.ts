@@ -34,8 +34,17 @@ export const reservePack = mutation({
       dbUser = insertedUser;
     }
 
+    // Generate Order
+    const orderId = await ctx.db.insert("orders", {
+      userId: dbUser._id,
+      paymentMethod: "cod", // Party packs currently default to cod
+      totalAmount: args.totalAmount,
+      status: "placed",
+    });
+
     const reservationId = await ctx.db.insert("party_reservations", {
       userId: dbUser._id,
+      orderId: orderId,
       childName: args.childName,
       ageTurning: args.ageTurning,
       numberOfKids: args.numberOfKids,

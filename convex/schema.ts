@@ -44,6 +44,7 @@ export default defineSchema({
 
   party_reservations: defineTable({
     userId: v.id("users"),
+    orderId: v.optional(v.id("orders")),
     childName: v.string(),
     ageTurning: v.number(),
     numberOfKids: v.number(),
@@ -51,5 +52,6 @@ export default defineSchema({
     items: v.array(v.string()),
     totalAmount: v.number(),
     status: v.string(), // "reserved", "delivered", "returned"
-  }).index("by_user", ["userId"]),
+  }).index("by_user", ["userId"])
+    .index("by_order", ["orderId"]),
 });

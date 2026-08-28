@@ -10,7 +10,7 @@ export default function Profile() {
   const { state } = useAppContext();
   const { user, profile } = useAuth();
   const { activeRentals, toys } = state;
-  const myPacks = useQuery(api.party.getMyPacks) || [];
+  const myOrders = useQuery(api.orders.getMyOrders) || [];
   
   if (!user) return null;
 
@@ -83,49 +83,61 @@ export default function Profile() {
 
       <div className="px-4 py-6 space-y-6">
 
-        {/* Active Rentals Hook */}
-        {activeRentals.length > 0 && (
-          <div>
-            <h3 className="text-lg font-bold text-gray-900 mb-3">Your Active Rentals</h3>
-            <div className="flex flex-col gap-4">
-              {activeRentals.map(toy => (
-                <div key={`rental-${toy.id}`} className="relative">
-                  <ToyCard toy={toy} />
-                  <div className="absolute top-2 right-2 bg-blue-100 text-blue-800 text-xs font-bold px-2 py-1 rounded-md z-10 shadow-sm border border-blue-200">
-                    Status: {toy.status || 'Active'}
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
-        )}
-        
-        {/* Reserved Packs Hook */}
-        {myPacks.length > 0 && (
+        {/* Unified Orders List */}
+        {myOrders.length > 0 && (
           <div>
             <h3 className="text-lg font-bold text-gray-900 mb-3 flex items-center gap-2">
-              <Gift size={18} className="text-blue-500" /> Your Party Packs
+              <Gift size={18} className="text-brand-500" /> My Orders
             </h3>
-            <div className="flex flex-col gap-4">
-              {myPacks.map(pack => (
-                <div key={pack._id} className="bg-white rounded-2xl p-4 shadow-sm border border-gray-100">
-                  <div className="flex justify-between items-start mb-2">
-                    <h4 className="font-bold text-gray-900">{pack.childName}'s {pack.theme} Party</h4>
-                    <span className="bg-blue-100 text-blue-800 text-xs font-bold px-2 py-1 rounded-md border border-blue-200 uppercase tracking-wider">
-                      {pack.status}
-                    </span>
-                  </div>
-                  <p className="text-xs text-gray-500 mb-3">Turning {pack.ageTurning} • {pack.numberOfKids} Kids</p>
-                  <div className="flex flex-wrap gap-2 mb-3">
-                    {pack.items.map((item: string, i: number) => (
-                      <span key={i} className="text-[10px] font-medium bg-gray-50 border border-gray-200 text-gray-600 px-2 py-1 rounded-full">
-                        {item}
+            <div className="flex flex-col gap-6">
+              {myOrders.map(order => (
+                <div key={order._id} className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
+                  <div className="bg-gray-50 px-4 py-3 border-b border-gray-100 flex justify-between items-center">
+                    <div>
+                      <p className="text-xs text-gray-500 font-medium">Order ID</p>
+                      <p className="text-sm font-bold text-gray-900 uppercase">#{order._id.substring(0, 8)}</p>
+                    </div>
+                    <div className="text-right">
+                      <span className="inline-block bg-blue-100 text-blue-800 text-xs font-bold px-2 py-1 rounded-md border border-blue-200 uppercase tracking-wider mb-1">
+                        {order.status}
                       </span>
-                    ))}
+                      <p className="text-xs font-bold text-gray-900">₹{order.totalAmount}</p>
+                    </div>
                   </div>
-                  <div className="flex justify-between items-center pt-3 border-t border-dashed border-gray-100">
-                    <span className="text-xs font-medium text-gray-500">Total Amount</span>
-                    <span className="font-bold text-blue-600">₹{pack.totalAmount}</span>
+                  
+                  <div className="p-4 space-y-4">
+                    {/* Render Party Packs in this Order */}
+                    {order.partyPacks?.map((pack: any) => (
+                      <div key={pack._id} className="bg-blue-50/50 rounded-xl p-3 border border-blue-100/50">
+                        <div className="flex justify-between items-start mb-2">
+                          <h4 className="font-bold text-gray-900">{pack.childName}'s {pack.theme} Party Pack</h4>
+                          <span className="text-xs font-bold text-blue-600 bg-white px-2 py-0.5 rounded border border-blue-100 uppercase">{pack.status}</span>
+                        </div>
+                        <p className="text-xs text-gray-500 mb-2">Turning {pack.ageTurning} • {pack.numberOfKids} Kids</p>
+                        <div className="flex flex-wrap gap-1.5">
+                          {pack.items.map((item: string, i: number) => (
+                            <span key={i} className="text-[10px] font-medium bg-white border border-gray-200 text-gray-600 px-2 py-1 rounded-full">
+                              {item}
+                            </span>
+                          ))}
+                        </div>
+                      </div>
+                    ))}
+
+                    {/* Render Standard Toys in this Order */}
+                    {order.rentals?.length > 0 && (
+                      <div className="space-y-3">
+                        <p className="text-xs font-bold text-gray-500 uppercase tracking-wider">Rented Toys</p>
+                        {order.rentals.map((rental: any) => (
+                          <div key={rental._id} className="relative">
+                            <ToyCard toy={{...rental.toy, status: rental.status}} />
+                            <div className="absolute top-2 right-2 bg-white text-brand-600 text-xs font-bold px-2 py-1 rounded shadow-sm border border-brand-100">
+                              {rental.status || 'Active'}
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    )}
                   </div>
                 </div>
               ))}
