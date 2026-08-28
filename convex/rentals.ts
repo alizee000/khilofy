@@ -8,10 +8,23 @@ export const getMyRentals = query({
     const identity = await ctx.auth.getUserIdentity();
     if (!identity) return [];
 
-    const user = await ctx.db
+    let user = await ctx.db
       .query("users")
       .withIndex("by_clerk_id", (q) => q.eq("clerkId", identity.subject))
       .unique();
+      
+    if (!user) {
+      const newUserId = await ctx.db.insert("users", {
+        clerkId: identity.subject,
+        name: identity.name || "User",
+        email: identity.email || "",
+        avatarUrl: identity.pictureUrl || "",
+        toyLoopScore: 0,
+        earnings: 0,
+      });
+      user = await ctx.db.get(newUserId);
+    }
+    
     if (!user) return [];
 
     const rentals = await ctx.db
@@ -41,10 +54,23 @@ export const checkout = mutation({
     const identity = await ctx.auth.getUserIdentity();
     if (!identity) throw new Error("Unauthorized");
 
-    const user = await ctx.db
+    let user = await ctx.db
       .query("users")
       .withIndex("by_clerk_id", (q) => q.eq("clerkId", identity.subject))
       .unique();
+      
+    if (!user) {
+      const newUserId = await ctx.db.insert("users", {
+        clerkId: identity.subject,
+        name: identity.name || "User",
+        email: identity.email || "",
+        avatarUrl: identity.pictureUrl || "",
+        toyLoopScore: 0,
+        earnings: 0,
+      });
+      user = await ctx.db.get(newUserId);
+    }
+    
     if (!user) throw new Error("User not found");
 
     // Create Order
