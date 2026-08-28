@@ -3,14 +3,17 @@ import { ChevronLeft, MapPin, Truck, ShieldCheck, CheckCircle2 } from 'lucide-re
 import { useState } from 'react';
 import { useAppContext } from '../context/AppContext';
 import { useAuth } from '../context/AuthContext';
-import { supabase } from '../lib/supabase';
+import { useMutation } from 'convex/react';
+import { api } from '../../convex/_generated/api';
 
 export default function Checkout() {
   const { id } = useParams();
   const navigate = useNavigate();
   const location = useLocation();
-  const { state } = useAppContext();
+  const { state, dispatch } = useAppContext();
   const { user } = useAuth();
+  
+  const checkoutMutation = useMutation(api.rentals.checkout);
   
   const searchParams = new URLSearchParams(location.search);
   const urlDuration = parseInt(searchParams.get('duration') || '1');

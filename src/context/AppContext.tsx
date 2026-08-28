@@ -1,7 +1,7 @@
 import React, { createContext, useContext, useReducer, useEffect, ReactNode } from 'react';
 import { Toy, User, Owner } from '../data/types';
 import { CURRENT_USER, OWNERS, TOYS as MOCK_TOYS } from '../data/seedData';
-import { supabase } from '../lib/supabase';
+// Supabase removed
 import { useAuth } from './AuthContext';
 
 interface AppState {
