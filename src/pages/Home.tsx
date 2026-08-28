@@ -8,7 +8,7 @@ import { useAuth } from '../context/AuthContext';
 export default function Home() {
   const navigate = useNavigate();
   const { state, dispatch } = useAppContext();
-  const { profile, user: clerkUser } = useAuth();
+  const { user: clerkUser } = useAuth();
   const { toys, searchQuery } = state;
   
   const displayName = clerkUser?.primaryEmailAddress?.emailAddress?.substring(0, 3) || clerkUser?.firstName || 'User';
