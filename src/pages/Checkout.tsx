@@ -22,6 +22,15 @@ export default function Checkout() {
   const [loading, setLoading] = useState(false);
   const [paymentMethod, setPaymentMethod] = useState<'online' | 'cod'>('cod');
   const [hasInsurance, setHasInsurance] = useState(true);
+  const [address, setAddress] = useState({
+    street: '',
+    apartment: '',
+    pincode: '',
+    city: 'Bangalore'
+  });
+
+  const isAddressValid = address.street.trim().length > 0 && address.pincode.trim().length === 6;
+  const fullAddress = `${address.apartment ? address.apartment + ', ' : ''}${address.street}, ${address.city} - ${address.pincode}`;
 
   const rentalFee = checkoutToys.reduce((sum, t) => {
     const dur = t.selectedDuration || 1;
@@ -59,7 +68,7 @@ export default function Checkout() {
             toys: toyNames,
             total: `₹${total}`,
             paymentMethod: paymentMethod === 'cod' ? 'Cash on Delivery' : 'Online',
-            address: state.user?.location?.address || 'Bangalore',
+            address: fullAddress,
             customerEmail: user.email,
             oopsieInsurance: hasInsurance ? 'Yes (+₹49)' : 'No',
           })
@@ -112,7 +121,7 @@ export default function Checkout() {
           toys: toyNames,
           total: `₹${total}`,
           paymentMethod: paymentMethod === 'cod' ? 'Cash on Delivery' : 'Online',
-          address: state.user?.location?.address || 'Bangalore',
+          address: fullAddress,
           customerEmail: user.email,
           oopsieInsurance: hasInsurance ? 'Yes (+₹49)' : 'No',
         })
@@ -193,9 +202,33 @@ export default function Checkout() {
             <Truck size={18} className="text-brand-500" />
             <h3 className="font-bold text-gray-900">Delivery Address</h3>
           </div>
-          <div className="text-sm text-gray-700 bg-gray-50 p-3 rounded-xl border border-gray-100 flex items-start gap-2">
-            <MapPin size={16} className="text-gray-400 shrink-0 mt-0.5" />
-            <span>{state.user.location.address}</span>
+          <div className="space-y-3">
+            <input 
+              type="text" 
+              placeholder="Street / Area Name" 
+              value={address.street}
+              onChange={e => setAddress({...address, street: e.target.value})}
+              className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:border-brand-500 focus:ring-1 focus:ring-brand-500 outline-none text-sm bg-gray-50 focus:bg-white transition-all"
+            />
+            <div className="flex gap-3">
+              <input 
+                type="text" 
+                placeholder="Apt, Suite, etc (Optional)" 
+                value={address.apartment}
+                onChange={e => setAddress({...address, apartment: e.target.value})}
+                className="w-1/2 px-4 py-3 rounded-xl border border-gray-200 focus:border-brand-500 focus:ring-1 focus:ring-brand-500 outline-none text-sm bg-gray-50 focus:bg-white transition-all"
+              />
+              <input 
+                type="text" 
+                placeholder="Pincode (6 digits)" 
+                maxLength={6}
+                value={address.pincode}
+                onChange={e => setAddress({...address, pincode: e.target.value.replace(/\D/g, '')})}
+                className="w-1/2 px-4 py-3 rounded-xl border border-gray-200 focus:border-brand-500 focus:ring-1 focus:ring-brand-500 outline-none text-sm bg-gray-50 focus:bg-white transition-all"
+              />
+            </div>
+            {!isAddressValid && <div className="text-xs text-red-500 px-1 mt-1">* Please enter a valid street and 6-digit pincode.</div>}
+            {isAddressValid && <div className="text-xs text-green-600 font-medium px-1 mt-1 flex items-center gap-1"><MapPin size={12}/> Will be delivered to {address.city}</div>}
           </div>
         </div>
 
